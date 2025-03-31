@@ -1,0 +1,73 @@
+site_name: MVola API Library
+site_description: Une bibliothèque Python robuste pour l'intégration de l'API de paiement MVola
+site_author: Niainarisoa
+site_url: https://niainarisoa01.github.io/Mvlola_API_Lib
+
+repo_name: Niainarisoa01/Mvlola_API_Lib
+repo_url: https://github.com/Niainarisoa01/Mvlola_API_Lib
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  palette:
+    primary: blue
+    accent: light blue
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+
+nav:
+  - Accueil: index.md
+  - Guide d'utilisation:
+      - Installation: guides/installation.md
+      - Authentification: guides/authentication.md
+      - Transactions: guides/transactions.md
+      - Gestion des erreurs: guides/error-handling.md
+  - Exemples:
+      - Utilisation basique: examples/basic-usage.md
+      - Intégration web: examples/web-integration.md
+      - Gestion des webhooks: examples/webhook-handling.md
+  - Référence API:
+      - Client: api-reference/client.md
+      - Authentification: api-reference/auth.md
+      - Transaction: api-reference/transaction.md
+      - Exceptions: api-reference/exceptions.md
+      - Utilitaires: api-reference/utils.md
+  - Explication:
+      - Architecture: explanation/architecture.md
+  - Contribution: contributing.md
+  - Changelog: changelog.md
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            show_source: true
+            show_root_heading: true
+            heading_level: 2
+            docstring_style: google
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - admonition
+  - pymdownx.details
+  - attr_list
+  - md_in_html
+  - footnotes
+  - toc:
+      permalink: true
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/Niainarisoa01 

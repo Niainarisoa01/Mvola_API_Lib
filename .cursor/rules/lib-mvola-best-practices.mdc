@@ -1,0 +1,13 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+
+# Best practices for creating the Mvola library payment solution in Python globs
+
+- Use the official Mvola SDK for secure and reliable integration
+- Implement proper error handling and logging for payment transactions
+- Ensure compliance with Mvola's security guidelines and regulations
+- Regularly update the Mvola library to benefit from the latest features and security patches
+- Test payment flows thoroughly in a sandbox environment before going live
