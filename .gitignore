@@ -32,7 +32,7 @@ venv.bak/
 
 # Documentation MkDocs
 site/
-
+/.cursor/
 # Distribution / packaging
 .Python
 env/

@@ -5,7 +5,7 @@ A robust Python library for integrating with MVola mobile payment API in Madagas
 ## Installation
 
 ```bash
-pip install mvola_api
+ pip install mvola-api-lib
 ```
 
 ## Features
@@ -129,7 +129,7 @@ client = MVolaClient(
 ### Installation for Development
 
 ```bash
-git clone https://github.com/yourusername/mvola_api.git
+git https://github.com/Niainarisoa01/Mvlola_API_Lib.git
 cd mvola_api
 pip install -e .
 ```

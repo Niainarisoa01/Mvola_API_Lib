@@ -14,7 +14,7 @@ Une bibliothèque Python robuste pour intégrer l'API de paiement mobile MVola �
 ## Installation
 
 ```bash
-pip install mvola-api
+pip install mvola-api-lib
 ```
 
 ## Démarrage rapide

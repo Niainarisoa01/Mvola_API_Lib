@@ -7,7 +7,7 @@ Ce guide explique comment intégrer la bibliothèque MVola API dans une applicat
 Avant de commencer, assurez-vous d'avoir installé la bibliothèque MVola API ainsi que Flask :
 
 ```bash
-pip install mvola-api flask python-dotenv
+ pip install mvola-api-lib | flask python-dotenv
 ```
 
 ## Structure du projet
