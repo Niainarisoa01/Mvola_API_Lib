@@ -8,7 +8,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="mvola_api",
-    version="1.0.0",
+    version="1.0.1",
     author="Niainarisoa",
     author_email="niainarisoa.mail@gmail.com",
     description="Une bibliothèque Python robuste pour l'intégration de l'API de paiement MVola",

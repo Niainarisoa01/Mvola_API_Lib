@@ -7,7 +7,7 @@ Ce guide fournit des exemples simples d'utilisation de la bibliothèque MVola AP
 Commencez par installer la bibliothèque :
 
 ```bash
-pip install mvola-api
+ pip install mvola-api-lib
 ```
 
 ## Initialisation
@@ -202,7 +202,7 @@ venv\Scripts\activate
 source venv/bin/activate
 
 # Installer la bibliothèque
-pip install mvola-api
+ pip install mvola-api-lib
 ```
 
 ## Voir aussi

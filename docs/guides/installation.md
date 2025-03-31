@@ -13,13 +13,13 @@ Ce guide vous aidera à installer la bibliothèque MVola API dans votre environn
 La méthode recommandée est d'installer la bibliothèque directement depuis PyPI :
 
 ```bash
-pip install mvola-api
+ pip install mvola-api-lib
 ```
 
 Pour installer une version spécifique :
 
 ```bash
-pip install mvola-api==1.0.0
+ pip install mvola-api-lib==1.0.0
 ```
 
 ## Installation avec les extras
@@ -28,16 +28,16 @@ Vous pouvez installer des dépendances supplémentaires en fonction de vos besoi
 
 ```bash
 # Pour le développement (tests, formatage, etc.)
-pip install mvola-api[dev]
+ pip install mvola-api-lib[dev]
 
 # Pour générer la documentation
-pip install mvola-api[docs]
+ pip install mvola-api-lib[docs]
 
 # Pour exécuter les exemples
-pip install mvola-api[examples]
+ pip install mvola-api-lib[examples]
 
 # Pour tout installer
-pip install mvola-api[dev,docs,examples]
+ pip install mvola-api-lib[dev,docs,examples]
 ```
 
 ## Installation depuis les sources

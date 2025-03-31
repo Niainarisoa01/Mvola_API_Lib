@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "mvola-api-lib"
-version = "1.0.0"
+version = "1.0.1"
 description = "Une bibliothèque Python robuste pour l'intégration de l'API de paiement MVola"
 readme = "README.md"
 authors = [
