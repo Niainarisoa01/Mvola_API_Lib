@@ -200,12 +200,22 @@ class MVolaTransaction:
         if not correlation_id:
             correlation_id = self._generate_correlation_id()
 
-        # Set up headers
-        headers = self._get_headers(
-            correlation_id=correlation_id,
-            user_language=user_language,
-            callback_url=callback_url,
-        )
+        # Générer un ID de transaction unique
+        transaction_ref = f"ref{str(uuid.uuid4())[:8]}"
+
+        # Set up headers - simplifié selon l'exemple fonctionnel
+        access_token = self.auth.get_access_token()
+        headers = {
+            "accept": "*/*",
+            "Version": API_VERSION,
+            "X-CorrelationID": correlation_id,
+            "Cache-Control": "no-cache",
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {access_token}"
+        }
+        
+        if callback_url:
+            headers["X-Callback-URL"] = callback_url
 
         # Set up request body
         request_date = self._get_current_datetime()
@@ -215,6 +225,8 @@ class MVolaTransaction:
             "currency": currency,
             "descriptionText": description,
             "requestDate": request_date,
+            "requestingOrganisationTransactionReference": transaction_ref,
+            "originalTransactionReference": "",
             "debitParty": [{"key": "msisdn", "value": debit_msisdn}],
             "creditParty": [{"key": "msisdn", "value": credit_msisdn}],
             "metadata": [{"key": "partnerName", "value": self.partner_name}],
@@ -249,17 +261,21 @@ class MVolaTransaction:
             # Try to extract error details if available
             if hasattr(e, "response") and e.response is not None:
                 try:
+                    # Print status code and full response for debugging
+                    print(f"Error status code: {e.response.status_code}")
+                    print(f"Error response text: {e.response.text}")
+                    
                     error_data = e.response.json()
                     if "fault" in error_data:
-                        error_message = (
-                            f"{error_message}: {error_data['fault'].get('message', '')}"
-                        )
+                        fault = error_data['fault']
+                        error_message = f"{error_message}: {fault.get('message', '')}"
+                        if 'detail' in fault and 'errorcode' in fault:
+                            error_message += f" (Code: {fault['detail'].get('errorcode', '')})"
                     elif "ErrorDescription" in error_data:
-                        error_message = (
-                            f"{error_message}: {error_data['ErrorDescription']}"
-                        )
-                except (ValueError, KeyError):
-                    pass
+                        error_message = f"{error_message}: {error_data['ErrorDescription']}"
+                except (ValueError, KeyError) as json_error:
+                    print(f"Failed to parse error response: {str(json_error)}")
+                    error_message = f"{error_message}: HTTP {e.response.status_code}"
 
             raise MVolaTransactionError(
                 message=error_message,

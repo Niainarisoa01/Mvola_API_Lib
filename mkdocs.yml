@@ -22,6 +22,8 @@ theme:
 
 nav:
   - Accueil: index.md
+  - Documentation API:
+      - Documentation complète: documentation.md
   - Guide d'utilisation:
       - Installation: guides/installation.md
       - Authentification: guides/authentication.md

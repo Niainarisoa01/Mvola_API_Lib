@@ -8,7 +8,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="mvola_api",
-    version="1.0.1",
+    version="1.0.2",
     author="Niainarisoa",
     author_email="niainarisoa.mail@gmail.com",
     description="Une bibliothèque Python robuste pour l'intégration de l'API de paiement MVola",
@@ -16,6 +16,8 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/Niainarisoa01/Mvlola_API_Lib",
     packages=setuptools.find_packages(),
+    package_data={"mvola_api": ["../docs/*.md"]},
+    include_package_data=True,
     classifiers=[
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.7",
@@ -51,6 +53,7 @@ setuptools.setup(
             "mkdocs-material>=7.1.0",
             "mkdocstrings>=0.15.0",
             "mkdocstrings-python>=0.5.0",
+            "markdown-pdf>=1.0.0",  # Pour la génération de PDF
         ],
     },
     project_urls={
