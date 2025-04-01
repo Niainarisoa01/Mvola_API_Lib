@@ -28,7 +28,7 @@ curl -X 'POST' \
   "metadata": [
     {
       "key": "partnerName",
-      "value": "CNTEMAD"
+      "value": "nom de votre entreprise"
     },
     {
       "key": "fc",

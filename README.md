@@ -52,7 +52,7 @@ import time
 client = MVolaClient(
     consumer_key="your_consumer_key",  # Obtenu du portail développeur MVola
     consumer_secret="your_consumer_secret",  # Obtenu du portail développeur MVola
-    partner_name="CNTEMAD",  # Nom de votre application/entreprise
+    partner_name="nom de votre entreprise",  # Nom de votre application/entreprise
     partner_msisdn="0343500004",  # Numéro marchand (IMPORTANT: en environnement sandbox, utilisez uniquement 0343500003 ou 0343500004)
     sandbox=True  # Utilise l'environnement de test (pre-api.mvola.mg)
 )
