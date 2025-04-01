@@ -1,0 +1,34 @@
+{
+  "amount": "1000",
+  "currency": "Ar",
+  "descriptionText": "Test Transaction",
+  "requestingOrganisationTransactionReference": "ref123456789",
+  "requestDate": "2023-03-28T09:06:07.151Z",
+  "originalTransactionReference": "",
+  "debitParty": [
+    {
+      "key": "msisdn",
+      "value": "0343500004"
+    }
+  ],
+  "creditParty": [
+    {
+      "key": "msisdn",
+      "value": "0343500003"
+    }
+  ],
+  "metadata": [
+    {
+      "key": "partnerName",
+      "value": "CNTEMAD"
+    },
+    {
+      "key": "fc",
+      "value": "EUR"
+    },
+    {
+      "key": "amountFc",
+      "value": "0.25"
+    }
+  ]
+} 

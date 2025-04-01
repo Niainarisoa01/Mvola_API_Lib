@@ -1,0 +1,42 @@
+curl -X 'POST' \
+  'https://pre-api.mvola.mg/mvola/mm/transactions/type/merchantpay/1.0.0/' \
+  -H 'accept: */*' \
+  -H 'Version: 1.0' \
+  -H 'X-CorrelationID: 123-123' \
+  -H 'Cache-Control: no-cache' \
+  -H 'Content-Type: application/json' \
+  -H 'Authorization: Bearer eyJ4NXQiOiJOMkpqTWpOaU0yRXhZalJrTnpaalptWTFZVEF4Tm1GbE5qZzRPV1UxWVdRMll6YzFObVk1TlEiLCJraWQiOiJNREpsTmpJeE4yRTFPR1psT0dWbU1HUXhPVEZsTXpCbU5tRmpaalEwWTJZd09HWTBOMkkwWXpFNFl6WmpOalJoWW1SbU1tUTBPRGRpTkRoak1HRXdNQV9SUzI1NiIsInR5cCI6ImF0K2p3dCIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiJuaWFpbmFyaXNvYS5tYWlsQGdtYWlsLmNvbSIsImF1dCI6IkFQUExJQ0FUSU9OIiwiYXVkIjoiZ3dhelJnU3IzSElJZ2Z6VWNoYXRzTWJxd3pVYSIsIm5iZiI6MTc0MzQ5MzQ4MCwiYXpwIjoiZ3dhelJnU3IzSElJZ2Z6VWNoYXRzTWJxd3pVYSIsInNjb3BlIjoiRVhUX0lOVF9NVk9MQV9TQ09QRSIsImlzcyI6Imh0dHBzOlwvXC9kZXZlbG9wZXIubXZvbGEubWdcL29hdXRoMlwvdG9rZW4iLCJyZWFsbSI6eyJzaWduaW5nX3RlbmFudCI6ImNhcmJvbi5zdXBlciJ9LCJleHAiOjE3NDM0OTcwODAsImlhdCI6MTc0MzQ5MzQ4MCwianRpIjoiMjQyY2ExY2EtODdmYy00YzkwLWJlMDUtZWM3MDY1NmUyNWM3In0.CTPYzzdm-PCpHLuT5wf9XUXdpIZdZRdO8zAOtxzMXlnx0FN5HfmSE3fdt-Gh46u32855tRMAFPAveyRX6bc_nKhpx2TxcOn9recgSvyQUU8aahcQOCPMim87mxU8BtlTx73thTXi26TOhzWeEzIKOIi7oyL6myQFGiBu7nkXDamqGajQgbpEocmsSp2PcbOKTNsSGgL37YZSVhmIcWx37pCbVLZ62Uce_rvgnCTa8wqdimRVMASCZKwM141b2ebWY9xOgw5Iaiw9SJtjj76JvmaMf0a71_r1NJwqTLP9lWqtMi2urzlmBkCY9FacXpAsGEhsbfnTRH80bSZkHbsoqQ' \
+  -d '{
+  "amount": "1000",
+  "currency": "Ar",
+  "descriptionText": "Test Transaction",
+  "requestingOrganisationTransactionReference": "ref123456789",
+  "requestDate": "2023-03-28T09:06:07.151Z",
+  "originalTransactionReference": "",
+  "debitParty": [
+    {
+      "key": "msisdn",
+      "value": "0343500004"
+    }
+  ],
+  "creditParty": [
+    {
+      "key": "msisdn",
+      "value": "0343500003"
+    }
+  ],
+  "metadata": [
+    {
+      "key": "partnerName",
+      "value": "CNTEMAD"
+    },
+    {
+      "key": "fc",
+      "value": "EUR"
+    },
+    {
+      "key": "amountFc",
+      "value": "0.25"
+    }
+  ]
+} '

@@ -1,6 +1,55 @@
-# Bibliothèque MVola API
+# MVola API Library
 
-Une bibliothèque Python robuste pour intégrer l'API de paiement mobile MVola à Madagascar.
+Bienvenue dans la documentation de la bibliothèque MVola API.
+
+## Introduction
+
+MVola API Library est une bibliothèque Python robuste conçue pour faciliter l'intégration des services de paiement mobile MVola dans vos applications. Cette bibliothèque vous permet d'interagir avec les API de MVola de manière simple et intuitive, en gérant automatiquement l'authentification, la validation des paramètres, et le traitement des erreurs.
+
+## Documentation complète de l'API
+
+**La documentation complète de l'API MVola est disponible [ici](documentation.md).**
+
+Cette documentation détaillée contient:
+- Configuration du portail développeur
+- Endpoints d'API et paramètres
+- Structures de requêtes et réponses
+- Codes d'erreur
+- Bonnes pratiques
+- Environnement de test
+
+## Installation
+
+```bash
+pip install mvola-api-lib
+```
+
+## Fonctionnalités principales
+
+- ✅ Gestion des jetons d'authentification
+- ✅ Paiements marchands (initiation, statut, détails)
+- ✅ Support des environnements Sandbox et Production
+- ✅ Validation des paramètres
+- ✅ Gestion robuste des erreurs
+- ✅ Journalisation intégrée
+
+## Utilisation rapide
+
+Pour un démarrage rapide, consultez les exemples dans la section [Guide d'utilisation](guides/installation.md).
+
+## Formats de documentation
+
+La documentation est disponible en plusieurs formats:
+
+- [Documentation en ligne](https://niainarisoa01.github.io/Mvlola_API_Lib/)
+- [Documentation PDF](output/mvola_api_documentation.pdf) (si disponible)
+- [Documentation Markdown sur GitHub](https://github.com/Niainarisoa01/Mvlola_API_Lib/blob/main/docs/documentation.md)
+
+## Support
+
+Pour toute question technique, contactez:
+- Le support MVola via le portail développeur
+- Créez une [issue sur GitHub](https://github.com/Niainarisoa01/Mvlola_API_Lib/issues)
 
 ## Fonctionnalités
 
@@ -10,12 +59,6 @@ Une bibliothèque Python robuste pour intégrer l'API de paiement mobile MVola �
 - ✅ Gestion complète des erreurs et validation des paramètres
 - ✅ Support de journalisation
 - ✅ Compatible avec les environnements sandbox et production
-
-## Installation
-
-```bash
-pip install mvola-api-lib
-```
 
 ## Démarrage rapide
 
