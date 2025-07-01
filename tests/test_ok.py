@@ -9,7 +9,7 @@ Ce script démontre comment utiliser la bibliothèque MVola API pour:
 5. Obtenir les détails d'une transaction
 
 Pour plus d'informations, consultez la documentation complète: 
-https://github.com/Niainarisoa01/Mvlola_API_Lib
+https://github.com/Niainarisoa01/Mvola_API_Lib
 """
 
 from mvola_api import MVolaClient
