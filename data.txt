@@ -1,5 +1,5 @@
 curl -X 'POST' \
-  'https://pre-api.mvola.mg/mvola/mm/transactions/type/merchantpay/1.0.0/' \
+  'https://devapi.mvola.mg/mvola/mm/transactions/type/merchantpay/1.0.0/' \
   -H 'accept: */*' \
   -H 'Version: 1.0' \
   -H 'X-CorrelationID: 123-123' \

@@ -43,6 +43,28 @@ Pour proposer une amélioration, créez une issue en incluant :
 7. **Poussez** votre branche sur GitHub (`git push origin feature/ma-fonctionnalite`)
 8. **Créez une Pull Request** sur le dépôt original
 
+## Compatibilité avec l'API MVola
+
+### Endpoints actuels
+
+La bibliothèque doit rester compatible avec les derniers endpoints de l'API MVola :
+
+- **Authentification** : `POST /token` avec `scope=EXT_INT_MVOLA_SCOPE`
+- **Paiement marchand** : `POST /mvola/mm/transactions/type/merchantpay/1.0.0/`
+- **Détails de transaction** : `GET /mvola/mm/transactions/type/merchantpay/1.0.0/{{transID}}`
+- **Statut de transaction** : `GET /mvola/mm/transactions/type/merchantpay/1.0.0/status/{{serverCorrelationId}}`
+
+### URLs de base
+
+- **Sandbox** : `https://devapi.mvola.mg`
+- **Production** : `https://api.mvola.mg`
+
+### Tests en sandbox
+
+Pour les tests dans l'environnement sandbox, utilisez uniquement les numéros MVola de test :
+- `0343500003`
+- `0343500004`
+
 ## Processus de développement
 
 ### Environnement de développement
@@ -51,8 +73,8 @@ Pour configurer votre environnement de développement :
 
 ```bash
 # Cloner le dépôt
-git clone https://github.com/Niainarisoa01/Mvlola_API_Lib.git
-cd Mvlola_API_Lib
+git clone https://github.com/Niainarisoa01/Mvola_API_Lib.git
+cd Mvola_API_Lib
 
 # Installer les dépendances de développement
 pip install -e ".[dev]"

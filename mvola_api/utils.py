@@ -86,12 +86,14 @@ def validate_description(description):
     if not description:
         return False, "Description is required"
 
-    if len(description) > 40:
-        return False, "Description must be less than 40 characters"
+    if len(description) > 50:
+        return False, "Description must be less than 50 characters"
 
-    # Check for invalid characters (only allow alphanumeric, spaces, and basic punctuation)
-    if re.search(r"[^\w\s\-.,]", description):
-        return False, "Description contains invalid characters"
+    # Check for invalid characters (only allow characters specified in MVola documentation)
+    # Documentation says: allow only "- ", ".", "_ ", ","
+    # We'll also allow alphanumeric characters as those are implicitly permitted
+    if re.search(r"[^a-zA-Z0-9\s\-\._,]", description):
+        return False, "Description contains invalid characters. Only alphanumeric, spaces, hyphens, dots, underscores, and commas are allowed."
 
     return True, ""
 

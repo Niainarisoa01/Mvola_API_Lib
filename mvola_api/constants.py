@@ -3,7 +3,7 @@ MVola API constants
 """
 
 # API URLs
-SANDBOX_URL = "https://pre-api.mvola.mg"
+SANDBOX_URL = "https://devapi.mvola.mg"
 PRODUCTION_URL = "https://api.mvola.mg"
 
 # API Endpoints

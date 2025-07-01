@@ -26,9 +26,9 @@ pip install mvola-api-lib
 
 ## Fonctionnalités principales
 
-- ✅ Gestion des jetons d'authentification
+- ✅ Gestion des jetons d'authentification avec scope `EXT_INT_MVOLA_SCOPE`
 - ✅ Paiements marchands (initiation, statut, détails)
-- ✅ Support des environnements Sandbox et Production
+- ✅ Support des environnements Sandbox (`https://devapi.mvola.mg`) et Production (`https://api.mvola.mg`)
 - ✅ Validation des paramètres
 - ✅ Gestion robuste des erreurs
 - ✅ Journalisation intégrée
@@ -41,15 +41,15 @@ Pour un démarrage rapide, consultez les exemples dans la section [Guide d'utili
 
 La documentation est disponible en plusieurs formats:
 
-- [Documentation en ligne](https://niainarisoa01.github.io/Mvlola_API_Lib/)
+- [Documentation en ligne](https://niainarisoa01.github.io/Mvola_API_Lib/)
 - [Documentation PDF](output/mvola_api_documentation.pdf) (si disponible)
-- [Documentation Markdown sur GitHub](https://github.com/Niainarisoa01/Mvlola_API_Lib/blob/main/docs/documentation.md)
+- [Documentation Markdown sur GitHub](https://github.com/Niainarisoa01/Mvola_API_Lib/blob/main/docs/documentation.md)
 
 ## Support
 
 Pour toute question technique, contactez:
 - Le support MVola via le portail développeur
-- Créez une [issue sur GitHub](https://github.com/Niainarisoa01/Mvlola_API_Lib/issues)
+- Créez une [issue sur GitHub](https://github.com/Niainarisoa01/Mvola_API_Lib/issues)
 
 ## Fonctionnalités
 
@@ -74,7 +74,7 @@ Ce script démontre comment utiliser la bibliothèque MVola API pour:
 5. Obtenir les détails d'une transaction
 
 Pour plus d'informations, consultez la documentation complète: 
-https://github.com/Niainarisoa01/Mvlola_API_Lib
+https://github.com/Niainarisoa01/Mvola_API_Lib
 """
 
 from mvola_api import MVolaClient
@@ -84,13 +84,13 @@ import time
 # 1. INITIALISATION DU CLIENT
 # ======================================================
 # Remplacez ces valeurs par vos propres credentials
-# Pour le mode production, définissez sandbox=False
+# Pour le mode production, utilisez l'URL de production
 client = MVolaClient(
     consumer_key="your_consumer_key",  # Obtenu du portail développeur MVola
     consumer_secret="your_consumer_secret",  # Obtenu du portail développeur MVola
     partner_name="nom de votre entreprise",  # Nom de votre application/entreprise
     partner_msisdn="0343500004",  # Numéro marchand (IMPORTANT: en environnement sandbox, utilisez uniquement 0343500003 ou 0343500004)
-    sandbox=True  # Utilise l'environnement de test (pre-api.mvola.mg)
+    base_url="https://devapi.mvola.mg"  # URL de l'environnement sandbox
 )
 
 # ======================================================
@@ -108,11 +108,13 @@ print(f"Token généré: {token_data['access_token'][:10]}...")
 # - Le débiteur (debit_msisdn) doit être le 0343500004
 # - Le créditeur (credit_msisdn) doit être le 0343500003
 # C'est l'inverse de ce qu'on pourrait attendre, mais c'est une spécificité de l'environnement de test
-result = client.initiate_payment(
+result = client.initiate_merchant_payment(
     amount=1000,  # Montant en Ariary (minimum 100)
+    currency="Ar",  # Devise (Ariary)
     debit_msisdn="0343500004",  # Numéro du débiteur (celui qui paie)
     credit_msisdn="0343500003",  # Numéro du créditeur (celui qui reçoit)
     description="Test Transaction",  # Description de la transaction (max 50 caractères)
+    requesting_organisation_transaction_reference="REF123456",  # Référence côté client
     callback_url="https://example.com/callback"  # URL où MVola enverra des notifications (optionnel)
 )
 
@@ -120,23 +122,21 @@ result = client.initiate_payment(
 # 4. SUIVI DE LA TRANSACTION
 # ======================================================
 # L'ID de corrélation est nécessaire pour suivre l'état de la transaction
-server_correlation_id = result['response']['serverCorrelationId']
+server_correlation_id = result['serverCorrelationId']
 print(f"Transaction initiée avec l'ID de corrélation: {server_correlation_id}")
 
 # 4.1 Vérification initiale du statut
 print("\n=== Test de get_transaction_status (statut initial) ===")
 status_result = client.get_transaction_status(server_correlation_id)
-print(f"Statut HTTP: {status_result['status_code']}")
-print(f"Statut initial de la transaction: {status_result['response']['status']}")
-print(f"Détails complets: {status_result['response']}")
+print(f"Statut de la transaction: {status_result['status']}")
 
 # 4.2 Suivi automatique du statut - boucle de vérification
 # La transaction peut prendre du temps pour être traitée
 print("\n=== Boucle de vérification du statut ===")
-max_attempts = 70  # Maximum d'essais
-waiting_time = 1   # Secondes entre chaque vérification
+max_attempts = 10  # Maximum d'essais
+waiting_time = 3   # Secondes entre chaque vérification
 current_attempt = 1
-transaction_status = status_result['response']['status']
+transaction_status = status_result['status']
 
 # La boucle continue jusqu'à ce que le statut change ou le nombre max de tentatives soit atteint
 while transaction_status == "pending" and current_attempt <= max_attempts:
@@ -146,7 +146,7 @@ while transaction_status == "pending" and current_attempt <= max_attempts:
     
     # Vérification périodique du statut
     status_result = client.get_transaction_status(server_correlation_id)
-    transaction_status = status_result['response']['status']
+    transaction_status = status_result['status']
     current_attempt += 1
 
 print(f"\nStatut final après {current_attempt-1} vérifications: {transaction_status}")
@@ -174,7 +174,7 @@ else:
 print("\n=== Test de get_transaction_details ===")
 
 # L'objectReference est l'ID unique de la transaction, nécessaire pour obtenir les détails
-transaction_id = status_result['response'].get('objectReference')
+transaction_id = status_result.get('objectReference')
 
 if transaction_id and transaction_id.strip():
     print(f"ID de transaction obtenu: {transaction_id}")
@@ -182,8 +182,15 @@ if transaction_id and transaction_id.strip():
     try:
         # Récupération des détails complets
         details_result = client.get_transaction_details(transaction_id)
-        print(f"Statut HTTP: {details_result['status_code']}")
-        print(f"Détails de la transaction: {details_result['response']}")
+        print(f"Détails de la transaction: {details_result}")
+        
+        # Accès aux détails spécifiques
+        amount = details_result.get('amount')
+        currency = details_result.get('currency')
+        transaction_status = details_result.get('transactionStatus')
+        
+        print(f"Montant: {amount} {currency}")
+        print(f"Statut: {transaction_status}")
     except Exception as e:
         print(f"Erreur lors de la récupération des détails: {str(e)}")
 else:
@@ -216,7 +223,7 @@ else:
 #    - La gestion des erreurs et exceptions
 #
 # 3. Pour l'environnement de production:
-#    - Utilisez sandbox=False lors de l'initialisation du client
+#    - Utilisez l'URL "https://api.mvola.mg" lors de l'initialisation du client
 #    - Utilisez vos véritables numéros de téléphone MVola
 #    - Assurez-vous d'avoir les autorisations nécessaires 
 ```
@@ -226,6 +233,15 @@ else:
 Pour les tests en sandbox, utilisez les numéros de téléphone de test suivants :
 **- 0343500003**
 **- 0343500004**
+
+## Endpoints d'API
+
+La bibliothèque prend en charge les endpoints suivants :
+
+1. **Authentification** : `POST /token` (avec scope `EXT_INT_MVOLA_SCOPE`)
+2. **Paiement marchand** : `POST /mvola/mm/transactions/type/merchantpay/1.0.0/`
+3. **Détails de transaction** : `GET /mvola/mm/transactions/type/merchantpay/1.0.0/{{transID}}`
+4. **Statut de transaction** : `GET /mvola/mm/transactions/type/merchantpay/1.0.0/status/{{serverCorrelationId}}`
 
 ## Structure de la documentation
 

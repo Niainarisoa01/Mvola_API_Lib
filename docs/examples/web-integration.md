@@ -61,7 +61,7 @@ class Config:
     MVOLA_CONSUMER_SECRET = os.environ.get('MVOLA_CONSUMER_SECRET')
     MVOLA_PARTNER_NAME = os.environ.get('MVOLA_PARTNER_NAME')
     MVOLA_PARTNER_MSISDN = os.environ.get('MVOLA_PARTNER_MSISDN')
-    MVOLA_SANDBOX = os.environ.get('MVOLA_SANDBOX', 'True').lower() in ('true', '1', 't')
+    MVOLA_BASE_URL = os.environ.get('MVOLA_BASE_URL', 'https://devapi.mvola.mg')
     
     # URL pour les webhooks (url publique)
     WEBHOOK_BASE_URL = os.environ.get('WEBHOOK_BASE_URL', 'https://example.com')
@@ -108,7 +108,7 @@ class MVolaService:
             consumer_secret=config['MVOLA_CONSUMER_SECRET'],
             partner_name=config['MVOLA_PARTNER_NAME'],
             partner_msisdn=config['MVOLA_PARTNER_MSISDN'],
-            sandbox=config['MVOLA_SANDBOX']
+            base_url=config['MVOLA_BASE_URL']
         )
         
         self.webhook_base_url = config['WEBHOOK_BASE_URL']
@@ -122,9 +122,9 @@ class MVolaService:
         Initie un paiement MVola.
         
         Args:
-            amount (float): Le montant à payer
+            amount (str): Le montant à payer (en chaîne de caractères)
             debit_msisdn (str): Le MSISDN du client qui paie
-            description (str): Description du paiement
+            description (str): Description du paiement (max 50 caractères)
             order_id (str, optional): Identifiant de commande pour le callback
         
         Returns:
@@ -140,21 +140,21 @@ class MVolaService:
         try:
             self.logger.info(f"Initiation de paiement: {amount} Ar depuis {debit_msisdn}")
             
-            transaction_info = self.client.initiate_payment(
+            transaction_info = self.client.initiate_merchant_payment(
                 amount=amount,
                 debit_msisdn=debit_msisdn,
                 credit_msisdn=self.client.partner_msisdn,
-                reference=reference,
                 description=description,
+                requesting_organisation_transaction_reference=reference,
                 callback_url=callback_url
             )
             
-            transaction_id = transaction_info.get('server_correlation_id')
-            self.logger.info(f"Paiement initié avec succès. ID: {transaction_id}")
+            server_correlation_id = transaction_info['response']['serverCorrelationId']
+            self.logger.info(f"Paiement initié avec succès. ID: {server_correlation_id}")
             
             # Stocker les infos de transaction avec l'ID de commande pour le suivi
             return {
-                'transaction_id': transaction_id,
+                'server_correlation_id': server_correlation_id,
                 'reference': reference,
                 'amount': amount,
                 'debit_msisdn': debit_msisdn,
@@ -166,20 +166,31 @@ class MVolaService:
             self.logger.error(f"Erreur lors de l'initiation du paiement: {e}")
             raise
     
-    def check_transaction_status(self, transaction_id, msisdn):
+    def check_transaction_status(self, server_correlation_id):
         """Vérifie le statut d'une transaction."""
         try:
             status_info = self.client.get_transaction_status(
-                transaction_id=transaction_id,
-                msisdn=msisdn
+                server_correlation_id=server_correlation_id
             )
             
-            return status_info
+            return status_info['response']
             
         except MVolaError as e:
             self.logger.error(f"Erreur lors de la vérification du statut: {e}")
             raise
-```
+    
+    def get_transaction_details(self, transaction_id):
+        """Récupère les détails d'une transaction complétée."""
+        try:
+            details = self.client.get_transaction_details(
+                transaction_id=transaction_id
+            )
+            
+            return details['response']
+            
+        except MVolaError as e:
+            self.logger.error(f"Erreur lors de la récupération des détails: {e}")
+            raise
 
 ## Contrôleur de paiement
 
@@ -199,83 +210,97 @@ def index():
     """Page d'accueil avec formulaire de paiement."""
     return render_template('index.html')
 
-@payment_bp.route('/payment', methods=['GET', 'POST'])
-def payment():
-    """Traitement du formulaire de paiement."""
-    if request.method == 'POST':
-        # Récupérer les données du formulaire
-        amount = float(request.form.get('amount', 0))
-        phone_number = request.form.get('phone_number', '')
-        description = request.form.get('description', 'Paiement web')
-        
-        # Valider les données
-        errors = {}
-        if amount <= 0:
-            errors['amount'] = "Le montant doit être supérieur à 0"
-        
-        if not phone_number.startswith('0') or len(phone_number) != 10:
-            errors['phone_number'] = "Le numéro doit être au format 034XXXXXXX"
-        
-        if errors:
-            for key, message in errors.items():
-                flash(message, 'error')
-            return render_template('payment.html', form_data=request.form)
-        
-        # Générer un ID de commande et le stocker en session
-        order_id = f"ORD-{session.get('user_id', 'ANON')}-{int(time.time())}"
-        session['current_order_id'] = order_id
-        
+@payment_bp.route('/pay', methods=['POST'])
+def process_payment():
+    """Traite une demande de paiement."""
+    form_data = request.form
+    
+    # Validation des données
+    if not form_data.get('amount') or not form_data.get('phone'):
+        flash('Veuillez fournir un montant et un numéro de téléphone', 'danger')
+        return redirect(url_for('payment.index'))
+    
+    try:
         # Initialiser le service MVola
         mvola_service = MVolaService(current_app.config)
         
-        try:
-            # Initier le paiement
-            transaction = mvola_service.initiate_payment(
-                amount=amount,
-                debit_msisdn=phone_number,
-                description=description,
-                order_id=order_id
-            )
-            
-            # Stocker l'ID de transaction en session pour le suivi
-            session['transaction_id'] = transaction['transaction_id']
-            
-            # Rediriger vers la page de statut
-            return redirect(url_for('payment.status'))
-            
-        except MVolaValidationError as e:
-            flash(f"Erreur de validation: {e}", 'error')
-            return render_template('payment.html', form_data=request.form)
-            
-        except MVolaError as e:
-            flash(f"Erreur lors du paiement: {e}", 'error')
-            return render_template('payment.html', form_data=request.form)
-    
-    # Si méthode GET, afficher le formulaire
-    return render_template('payment.html')
+        # Générer un ID de commande unique
+        order_id = str(uuid.uuid4())
+        
+        # Stocker les informations de commande dans la session
+        session['order'] = {
+            'id': order_id,
+            'amount': form_data.get('amount'),
+            'phone': form_data.get('phone'),
+            'description': form_data.get('description', 'Paiement en ligne'),
+            'timestamp': datetime.now().isoformat()
+        }
+        
+        # Initier le paiement
+        transaction = mvola_service.initiate_payment(
+            amount=form_data.get('amount'),
+            debit_msisdn=form_data.get('phone'),
+            description=form_data.get('description', 'Paiement en ligne'),
+            order_id=order_id
+        )
+        
+        # Stocker l'ID de corrélation pour le suivi
+        session['server_correlation_id'] = transaction['server_correlation_id']
+        
+        # Rediriger vers la page de statut
+        return redirect(url_for('payment.payment_status', order_id=order_id))
+        
+    except MVolaValidationError as e:
+        flash(f'Erreur de validation: {e}', 'danger')
+        return redirect(url_for('payment.index'))
+    except MVolaError as e:
+        flash(f'Erreur MVola: {e}', 'danger')
+        return redirect(url_for('payment.index'))
+    except Exception as e:
+        flash(f'Erreur inattendue: {e}', 'danger')
+        return redirect(url_for('payment.index'))
 
-@payment_bp.route('/payment/status')
-def status():
-    """Affiche le statut du paiement et permet de vérifier son état."""
-    transaction_id = session.get('transaction_id')
+@payment_bp.route('/status/<order_id>')
+def payment_status(order_id):
+    """Page de statut de paiement avec rafraîchissement automatique."""
     
-    if not transaction_id:
-        flash("Aucune transaction en cours", 'error')
+    # Vérifier si la commande existe dans la session
+    if 'order' not in session or session['order']['id'] != order_id:
+        flash('Commande introuvable', 'danger')
         return redirect(url_for('payment.index'))
     
-    # Récupérer le statut si demandé
-    status_info = None
-    if request.args.get('check') == '1':
-        mvola_service = MVolaService(current_app.config)
-        try:
-            status_info = mvola_service.check_transaction_status(
-                transaction_id=transaction_id,
-                msisdn=current_app.config['MVOLA_PARTNER_MSISDN']
-            )
-        except Exception as e:
-            flash(f"Erreur lors de la vérification du statut: {e}", 'error')
+    order = session['order']
+    server_correlation_id = session.get('server_correlation_id')
     
-    return render_template('status.html', transaction_id=transaction_id, status_info=status_info)
+    # Si pas d'ID de corrélation, impossible de vérifier le statut
+    if not server_correlation_id:
+        flash('Impossible de vérifier le statut du paiement', 'danger')
+        return redirect(url_for('payment.index'))
+    
+    try:
+        # Vérifier le statut actuel
+        mvola_service = MVolaService(current_app.config)
+        status_info = mvola_service.check_transaction_status(server_correlation_id)
+        
+        status = status_info.get('status')
+        
+        # Si la transaction est complétée, récupérer les détails
+        transaction_details = None
+        if status == 'completed' and 'objectReference' in status_info:
+            transaction_id = status_info['objectReference']
+            transaction_details = mvola_service.get_transaction_details(transaction_id)
+        
+        return render_template(
+            'payment_status.html',
+            order=order,
+            server_correlation_id=server_correlation_id,
+            status=status,
+            transaction_details=transaction_details
+        )
+        
+    except Exception as e:
+        flash(f'Erreur lors de la vérification du statut: {e}', 'danger')
+        return redirect(url_for('payment.index'))
 ```
 
 ## Contrôleur de webhook
@@ -291,39 +316,36 @@ from flask import Blueprint, request, jsonify, current_app
 webhook_bp = Blueprint('webhook', __name__, url_prefix='/webhooks')
 logger = logging.getLogger('webhook_controller')
 
-@webhook_bp.route('/mvola/callback', methods=['POST'])
+@webhook_bp.route('/mvola/callback', methods=['PUT'])
 def mvola_callback():
     """
-    Gère les callbacks de MVola pour les notifications de transactions.
-    
-    MVola envoie des notifications quand le statut d'une transaction change.
+    Endpoint pour recevoir les notifications de MVola.
+    MVola envoie les notifications de statut à cet endpoint.
     """
-    # Récupérer les données du webhook
-    data = request.get_json()
+    webhook_data = request.get_json()
     
-    if not data:
-        logger.warning("Données de webhook vides ou mal formatées")
-        return jsonify({'status': 'error', 'message': 'Invalid data format'}), 400
+    if not webhook_data:
+        return jsonify({'status': 'error', 'message': 'Invalid data'}), 400
     
-    # Récupérer l'ID de commande des query params si présent
+    # Log des données reçues
+    current_app.logger.info(f"Webhook MVola reçu: {json.dumps(webhook_data)}")
+    
+    # Extraire les informations importantes
+    server_correlation_id = webhook_data.get('serverCorrelationId')
+    transaction_status = webhook_data.get('transactionStatus')
+    transaction_reference = webhook_data.get('transactionReference')
+    
+    if not server_correlation_id or not transaction_status:
+        return jsonify({'status': 'error', 'message': 'Missing required fields'}), 400
+    
+    # Récupérer l'ID de commande depuis les paramètres de la requête
     order_id = request.args.get('order_id')
     
-    # Récupérer l'ID de transaction et le statut
-    transaction_id = data.get('transactionId')
-    status = data.get('status')
+    # Mettre à jour le statut de la commande dans la base de données
+    update_order_status(order_id, transaction_status, transaction_reference, webhook_data)
     
-    logger.info(f"Webhook reçu: Transaction {transaction_id}, Statut {status}, Commande {order_id}")
-    
-    # Ici, vous mettriez à jour votre base de données avec le statut
-    # Par exemple: update_transaction_status(transaction_id, status, order_id)
-    
-    # Si la transaction est terminée et validée, vous pourriez déclencher d'autres actions
-    if status and status.lower() == 'completed':
-        logger.info(f"Transaction {transaction_id} terminée avec succès")
-        # complete_order(order_id)  # Marquer la commande comme payée
-    
-    # Toujours retourner un 200 OK pour informer MVola que le webhook a été reçu
-    return jsonify({'status': 'success', 'message': 'Webhook received'}), 200
+    # Renvoyer un succès pour indiquer que la notification a été reçue
+    return jsonify({'status': 'success'}), 200
 ```
 
 ## Templates
@@ -543,7 +565,7 @@ MVOLA_CONSUMER_KEY=votre_consumer_key
 MVOLA_CONSUMER_SECRET=votre_consumer_secret
 MVOLA_PARTNER_NAME=NOM_DU_PARTENAIRE
 MVOLA_PARTNER_MSISDN=0343500003
-MVOLA_SANDBOX=True
+MVOLA_BASE_URL=https://devapi.mvola.mg
 WEBHOOK_BASE_URL=https://votre-domaine.com
 ```
 

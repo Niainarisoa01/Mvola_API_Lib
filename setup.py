@@ -8,13 +8,13 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="mvola_api",
-    version="1.0.2",
+    version="1.1.0",
     author="Niainarisoa",
     author_email="niainarisoa.mail@gmail.com",
     description="Une bibliothèque Python robuste pour l'intégration de l'API de paiement MVola",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/Niainarisoa01/Mvlola_API_Lib",
+    url="https://github.com/Niainarisoa01/Mvola_API_Lib",
     packages=setuptools.find_packages(),
     package_data={"mvola_api": ["../docs/*.md"]},
     include_package_data=True,
@@ -54,11 +54,13 @@ setuptools.setup(
             "mkdocstrings>=0.15.0",
             "mkdocstrings-python>=0.5.0",
             "markdown-pdf>=1.0.0",  # Pour la génération de PDF
+            "mike>=1.1.2",  # Pour la gestion des versions de documentation
         ],
     },
     project_urls={
-        "Documentation": "https://Niainarisoa01.github.io/Mvlola_API_Lib/",
-        "Source": "https://github.com/Niainarisoa01/Mvlola_API_Lib",
-        "Bug Reports": "https://github.com/Niainarisoa01/Mvlola_API_Lib/issues",
+        "Documentation": "https://Niainarisoa01.github.io/Mvola_API_Lib/",
+        "Source": "https://github.com/Niainarisoa01/Mvola_API_Lib",
+        "Bug Reports": "https://github.com/Niainarisoa01/Mvola_API_Lib/issues",
+        "Changelog": "https://github.com/Niainarisoa01/Mvola_API_Lib/blob/main/docs/changelog.md",
     },
 ) 
