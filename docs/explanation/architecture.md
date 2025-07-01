@@ -58,10 +58,10 @@ Le module d'authentification :
 
 Le module de transaction :
 - Implémente les opérations de paiement marchand via l'endpoint `/mvola/mm/transactions/type/merchantpay/1.0.0/`
-- Gère la validation des paramètres de transaction avec la nouvelle limite de 50 caractères pour la description
+- Gère la validation des paramètres de transaction avec la limite de 50 caractères pour la description
 - Fournit des méthodes pour vérifier le statut des transactions via `serverCorrelationId`
 - Récupère les détails des transactions avec une réponse structurée standardisée
-- Prend en charge les nouveaux paramètres comme `requestingOrganisationTransactionReference` et `originalTransactionReference`
+- Prend en charge les paramètres comme `requestingOrganisationTransactionReference` et `originalTransactionReference`
 
 ### Gestion des erreurs
 

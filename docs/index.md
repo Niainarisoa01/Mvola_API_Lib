@@ -42,7 +42,6 @@ Pour un démarrage rapide, consultez les exemples dans la section [Guide d'utili
 La documentation est disponible en plusieurs formats:
 
 - [Documentation en ligne](https://niainarisoa01.github.io/Mvola_API_Lib/)
-- [Documentation PDF](output/mvola_api_documentation.pdf) (si disponible)
 - [Documentation Markdown sur GitHub](https://github.com/Niainarisoa01/Mvola_API_Lib/blob/main/docs/documentation.md)
 
 ## Support
