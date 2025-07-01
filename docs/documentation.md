@@ -1,4 +1,4 @@
-# Documentation de l'API MVola
+ # Documentation de l'API MVola
 
 ## Introduction
 
@@ -6,15 +6,15 @@ Cette documentation décrit l'intégration des services de paiement mobile MVola
 
 ## Table des matières
 
-1. [Portail développeur MVola](#1-portail-développeur-mvola)
-2. [Configuration de l'API](#2-configuration-de-lapi)
-3. [API d'authentification](#3-api-dauthentification)
-4. [API de paiement marchand](#4-api-de-paiement-marchand)
-5. [Codes d'erreur](#5-codes-derreur)
-6. [Environnement de test](#6-environnement-de-test)
-7. [Bonnes pratiques](#7-bonnes-pratiques)
+1. [Portail développeur MVola](#portail)
+2. [Configuration de l'API](#configuration)
+3. [API d'authentification](#authentification)
+4. [API de paiement marchand](#paiement)
+5. [Codes d'erreur](#erreurs)
+6. [Environnement de test](#test)
+7. [Bonnes pratiques](#pratiques)
 
-## 1. Portail développeur MVola
+## Portail
 
 ### Création de compte et connexion
 
@@ -37,7 +37,7 @@ Cette documentation décrit l'intégration des services de paiement mobile MVola
 2. Abonnez-vous aux API MVola pour recevoir vos clés d'accès.
 3. Un email de confirmation vous sera envoyé.
 
-## 2. Configuration de l'API
+## Configuration
 
 ### Environnements disponibles
 
@@ -59,7 +59,7 @@ Pour passer en production:
 2. Suivez les étapes de validation.
 3. Utilisez les clés de production une fois approuvées.
 
-## 3. API d'authentification
+## Authentification
 
 ### Endpoints
 
@@ -109,7 +109,7 @@ Notes:
 - Le token expire après 3600 secondes (1 heure)
 - L'encodage Base64 utilise le format `consumer-key:consumer-secret` avec un deux-points (:)
 
-## 4. API de paiement marchand
+## Paiement
 
 ### Endpoints
 
@@ -199,7 +199,7 @@ Réponse (succès):
 }
 ```
 
-## 5. Codes d'erreur
+## Erreurs
 
 ### Codes HTTP
 
@@ -238,7 +238,7 @@ Erreur d'authentification:
 }
 ```
 
-## 6. Environnement de test
+## Test
 
 ### Numéros de test disponibles
 
@@ -256,7 +256,7 @@ Pour l'environnement Sandbox, utilisez uniquement:
 
 3. Approuvez les transactions en attente via "Transaction Approvals"
 
-## 7. Bonnes pratiques
+## Pratiques
 
 1. **Gestion des tokens**
    - Stockez le token de manière sécurisée

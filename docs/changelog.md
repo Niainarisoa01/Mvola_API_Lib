@@ -14,8 +14,8 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Changé
 - Migration des URLs d'API: 
-  - Sandbox: `https://devapi.mvola.mg` (remplace api-uat.orange.mg)
-  - Production: `https://api.mvola.mg` (remplace api.orange.mg)
+  - Sandbox: `https://devapi.mvola.mg` (remplace pre-api.mvola.mg)
+  - Production: `https://api.mvola.mg` (remplace api.mvola.mg)
 - Mise à jour du client pour utiliser `base_url` au lieu de `sandbox`
 - Renommage de la méthode `initiate_payment` en `initiate_merchant_payment`
 - Mise à jour complète de la documentation pour refléter les changements d'API
