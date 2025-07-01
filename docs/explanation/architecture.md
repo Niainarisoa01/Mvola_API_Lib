@@ -44,20 +44,24 @@ Le client est le point d'entrée principal de la bibliothèque. Il :
 - Coordonne les interactions entre les différents modules
 - Fournit une interface simplifiée pour les opérations courantes
 - Gère la journalisation et les paramètres globaux
+- Configure les URLs pour les environnements sandbox (https://devapi.mvola.mg) et production (https://api.mvola.mg)
 
 ### MVolaAuth
 
 Le module d'authentification :
-- Gère la génération de tokens OAuth
+- Gère la génération de tokens OAuth avec le scope `EXT_INT_MVOLA_SCOPE`
 - Maintient l'état du token et gère son expiration
 - Rafraîchit automatiquement le token lorsque nécessaire
+- Gère les en-têtes d'authentification pour les appels API
 
 ### MVolaTransaction
 
 Le module de transaction :
-- Implémente les opérations de paiement marchand
-- Gère la validation des paramètres de transaction
-- Fournit des méthodes pour vérifier le statut et les détails des transactions
+- Implémente les opérations de paiement marchand via l'endpoint `/mvola/mm/transactions/type/merchantpay/1.0.0/`
+- Gère la validation des paramètres de transaction avec la nouvelle limite de 50 caractères pour la description
+- Fournit des méthodes pour vérifier le statut des transactions via `serverCorrelationId`
+- Récupère les détails des transactions avec une réponse structurée standardisée
+- Prend en charge les nouveaux paramètres comme `requestingOrganisationTransactionReference` et `originalTransactionReference`
 
 ### Gestion des erreurs
 
@@ -75,7 +79,7 @@ Le système de gestion des erreurs utilise une hiérarchie d'exceptions :
    MVolaClient → MVolaAuth → API MVola → Token d'accès → Stocké dans MVolaAuth
    ```
 
-2. **Initiation de paiement** :
+2. **Initiation de paiement marchand** :
    ```
    MVolaClient → MVolaTransaction → Validation des paramètres → 
    MVolaTransaction demande token à MVolaAuth → 
@@ -87,7 +91,7 @@ Le système de gestion des erreurs utilise une hiérarchie d'exceptions :
    ```
    MVolaClient → MVolaTransaction → 
    MVolaTransaction demande token à MVolaAuth → 
-   MVolaTransaction envoie requête à API MVola → 
+   MVolaTransaction envoie requête avec serverCorrelationId à API MVola → 
    Résultat retourné à MVolaClient
    ```
 
@@ -102,6 +106,7 @@ Le système de gestion des erreurs utilise une hiérarchie d'exceptions :
 - **Pas de stockage persistant de credentials** - Les identifiants ne sont jamais écrits sur disque
 - **Communication HTTPS** - Toutes les communications avec l'API MVola utilisent HTTPS
 - **Validation des entrées** - Toutes les entrées utilisateur sont validées avant utilisation
+- **Scope spécifique** - Utilisation du scope `EXT_INT_MVOLA_SCOPE` pour l'authentification
 
 ## Évolutivité
 
@@ -115,4 +120,5 @@ La bibliothèque est conçue pour évoluer facilement :
 Lors du développement, plusieurs défis ont été relevés :
 - Gestion cohérente des erreurs provenant de l'API MVola
 - Conception d'une API intuitive tout en exposant les fonctionnalités nécessaires
-- Équilibre entre simplicité d'utilisation et flexibilité 
+- Équilibre entre simplicité d'utilisation et flexibilité
+- Adaptation aux changements d'API avec les nouveaux formats de réponse standardisés 

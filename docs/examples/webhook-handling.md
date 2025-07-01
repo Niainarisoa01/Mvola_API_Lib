@@ -30,7 +30,7 @@ Voici comment les webhooks fonctionnent avec MVola:
 
 ## Configuration d'un callback URL
 
-Lorsque vous initiez un paiement, vous devez spécifier une URL de callback:
+Lorsque vous initiez un paiement, vous pouvez spécifier une URL de callback avec l'en-tête `X-Callback-URL` ou le paramètre `callback_url` dans la méthode :
 
 ```python
 from mvola_api import MVolaClient
@@ -40,15 +40,15 @@ client = MVolaClient(
     consumer_secret="votre_consumer_secret",
     partner_name="NOM_DU_PARTENAIRE",
     partner_msisdn="0343500003",
-    sandbox=True
+    base_url="https://devapi.mvola.mg"  # URL de l'API sandbox
 )
 
-transaction_info = client.initiate_payment(
-    amount=1000,
+transaction_info = client.initiate_merchant_payment(
+    amount="1000",
     debit_msisdn="0343500003",
     credit_msisdn="0343500004",
-    reference="REF123456",
     description="Paiement produit",
+    requesting_organisation_transaction_reference="REF123456",
     callback_url="https://votre-domaine.com/webhooks/mvola/callback"
 )
 ```
@@ -57,17 +57,16 @@ Cette URL doit être accessible publiquement sur Internet pour que MVola puisse 
 
 ## Format des notifications de webhook
 
-MVola envoie des notifications au format JSON. Voici un exemple typique:
+MVola envoie des notifications au format JSON via une requête PUT à votre URL de callback. Voici les formats typiques:
+
+### Notification de succès
 
 ```json
 {
-  "transactionId": "12345678-1234-1234-1234-123456789012",
-  "status": "completed",
-  "amount": 1000,
-  "currency": "Ar",
-  "financialTransactionId": "12345678",
-  "externalId": "REF123456",
-  "reason": "Paiement accepté",
+  "transactionStatus": "completed",
+  "serverCorrelationId": "421a22a2-ef1d-42bc-9452-f4939a3d5cdf",
+  "transactionReference": "641235",
+  "requestDate": "2021-02-24T03:28:00.567Z",
   "debitParty": [
     {
       "key": "msisdn",
@@ -80,7 +79,46 @@ MVola envoie des notifications au format JSON. Voici un exemple typique:
       "value": "0343500004"
     }
   ],
-  "timestamp": "2024-07-24T10:15:30.000Z"
+  "fees": [
+    {
+      "feeAmount": "20"
+    }
+  ],
+  "metadata": [
+    {
+      "key": "partnerName",
+      "value": "NomPartenaire"
+    }
+  ]
+}
+```
+
+### Notification d'échec
+
+```json
+{
+  "transactionStatus": "failed",
+  "serverCorrelationId": "421a22a2-ef1d-42bc-9452-f4939a3d5cdf",
+  "transactionReference": "641235",
+  "requestDate": "2021-02-24T03:28:00.567Z",
+  "debitParty": [
+    {
+      "key": "msisdn",
+      "value": "0343500003"
+    }
+  ],
+  "creditParty": [
+    {
+      "key": "msisdn",
+      "value": "0343500004"
+    }
+  ],
+  "metadata": [
+    {
+      "key": "partnerName",
+      "value": "NomPartenaire"
+    }
+  ]
 }
 ```
 
@@ -88,8 +126,6 @@ Les statuts possibles incluent:
 - `pending`: La transaction est en attente de confirmation
 - `completed`: La transaction a été traitée avec succès
 - `failed`: La transaction a échoué
-- `rejected`: La transaction a été rejetée par le client
-- `cancelled`: La transaction a été annulée
 
 ## Création d'un endpoint de webhook
 
@@ -105,7 +141,7 @@ import json
 webhook_bp = Blueprint('webhook', __name__, url_prefix='/webhooks')
 logger = logging.getLogger('webhook')
 
-@webhook_bp.route('/mvola/callback', methods=['POST'])
+@webhook_bp.route('/mvola/callback', methods=['PUT'])  # MVola utilise PUT pour les callbacks
 def mvola_callback():
     # Récupérer les données du webhook
     webhook_data = request.get_json()
@@ -118,39 +154,49 @@ def mvola_callback():
     logger.info(f"Webhook reçu: {json.dumps(webhook_data)}")
     
     # Extraire les informations importantes
-    transaction_id = webhook_data.get('transactionId')
-    status = webhook_data.get('status')
-    amount = webhook_data.get('amount')
+    server_correlation_id = webhook_data.get('serverCorrelationId')
+    transaction_status = webhook_data.get('transactionStatus')
+    transaction_reference = webhook_data.get('transactionReference')
+    
+    # Récupérer les numéros MSISDN
     debit_party = webhook_data.get('debitParty', [])
     debit_msisdn = next((item.get('value') for item in debit_party 
                          if item.get('key') == 'msisdn'), None)
     
+    credit_party = webhook_data.get('creditParty', [])
+    credit_msisdn = next((item.get('value') for item in credit_party 
+                          if item.get('key') == 'msisdn'), None)
+    
+    # Récupérer les frais si disponibles
+    fees = webhook_data.get('fees', [])
+    fee_amount = next((fee.get('feeAmount') for fee in fees), None)
+    
     # Traiter selon le statut
-    if status == 'completed':
+    if transaction_status == 'completed':
         # La transaction a réussi
-        logger.info(f"Transaction {transaction_id} complétée avec succès")
+        logger.info(f"Transaction {transaction_reference} complétée avec succès")
         # Mettre à jour votre base de données, envoyer un email, etc.
-        update_transaction_status(transaction_id, status)
-        send_confirmation_email(debit_msisdn, amount)
+        update_transaction_status(server_correlation_id, transaction_status, transaction_reference)
+        send_confirmation_email(debit_msisdn, webhook_data)
         
-    elif status in ['failed', 'rejected', 'cancelled']:
+    elif transaction_status == 'failed':
         # La transaction a échoué
-        logger.warning(f"Transaction {transaction_id} a échoué: {status}")
-        update_transaction_status(transaction_id, status)
-        send_failure_notification(debit_msisdn, amount, status)
+        logger.warning(f"Transaction {server_correlation_id} a échoué")
+        update_transaction_status(server_correlation_id, transaction_status, transaction_reference)
+        send_failure_notification(debit_msisdn, webhook_data)
     
     # Toujours retourner un succès (HTTP 200) pour indiquer que vous avez reçu la notification
     return jsonify({"status": "success"}), 200
 
-def update_transaction_status(transaction_id, status):
+def update_transaction_status(server_correlation_id, status, transaction_reference=None):
     # Implémentez la mise à jour de votre base de données
     pass
 
-def send_confirmation_email(msisdn, amount):
+def send_confirmation_email(msisdn, webhook_data):
     # Envoyez un email de confirmation
     pass
 
-def send_failure_notification(msisdn, amount, reason):
+def send_failure_notification(msisdn, webhook_data):
     # Envoyez une notification d'échec
     pass
 ```
@@ -173,12 +219,12 @@ import json
 import logging
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_http_methods
 
 logger = logging.getLogger('mvola_webhooks')
 
 @csrf_exempt  # Important: les webhooks externes ne peuvent pas fournir de token CSRF
-@require_POST
+@require_http_methods(["PUT"])  # MVola utilise PUT pour les callbacks
 def mvola_callback(request):
     try:
         webhook_data = json.loads(request.body)
@@ -186,11 +232,12 @@ def mvola_callback(request):
         logger.error("Données JSON invalides")
         return JsonResponse({"status": "error", "message": "Invalid JSON"}, status=400)
     
-    # Traiter les données comme dans l'exemple Flask
-    transaction_id = webhook_data.get('transactionId')
-    status = webhook_data.get('status')
+    # Extraire les informations importantes
+    server_correlation_id = webhook_data.get('serverCorrelationId')
+    transaction_status = webhook_data.get('transactionStatus')
+    transaction_reference = webhook_data.get('transactionReference')
     
-    # Logique de traitement des statuts...
+    # Traiter les données selon le statut...
     
     return JsonResponse({"status": "success"})
 ```
@@ -211,7 +258,7 @@ def is_valid_mvola_request(request):
     
     return client_ip in allowed_ips
 
-@webhook_bp.route('/mvola/callback', methods=['POST'])
+@webhook_bp.route('/mvola/callback', methods=['PUT'])
 def mvola_callback():
     if not is_valid_mvola_request(request):
         logger.warning(f"Tentative d'accès non autorisée depuis {request.remote_addr}")
@@ -225,18 +272,17 @@ def mvola_callback():
 Validez systématiquement les données reçues en les comparant avec vos enregistrements:
 
 ```python
-def validate_transaction(transaction_id, amount, debit_msisdn):
+def validate_transaction(server_correlation_id, transaction_reference, debit_msisdn):
     # Récupérer la transaction depuis votre base de données
-    stored_transaction = get_transaction_from_db(transaction_id)
+    stored_transaction = get_transaction_from_db(server_correlation_id)
     
     if not stored_transaction:
-        logger.warning(f"Transaction inconnue: {transaction_id}")
+        logger.warning(f"Transaction inconnue: {server_correlation_id}")
         return False
     
     # Vérifier que les détails correspondent
-    if (stored_transaction.amount != amount or 
-        stored_transaction.debit_msisdn != debit_msisdn):
-        logger.warning(f"Détails de transaction non concordants: {transaction_id}")
+    if stored_transaction.debit_msisdn != debit_msisdn:
+        logger.warning(f"Détails de transaction non concordants: {server_correlation_id}")
         return False
     
     return True
@@ -247,16 +293,16 @@ def validate_transaction(transaction_id, amount, debit_msisdn):
 MVola peut retransmettre les notifications en cas d'échec. Votre endpoint doit être idempotent, c'est-à-dire qu'il doit pouvoir recevoir plusieurs fois la même notification sans causer de problèmes:
 
 ```python
-def process_transaction_completion(transaction_id, status):
+def process_transaction_completion(server_correlation_id, transaction_status, transaction_reference):
     # Vérifier si la transaction a déjà été traitée
-    if is_transaction_already_processed(transaction_id):
-        logger.info(f"Transaction {transaction_id} déjà traitée, ignorée")
+    if is_transaction_already_processed(server_correlation_id, transaction_reference):
+        logger.info(f"Transaction {server_correlation_id} déjà traitée, ignorée")
         return
     
     # Traiter la transaction et marquer comme traitée
-    mark_transaction_as_processed(transaction_id, status)
+    mark_transaction_as_processed(server_correlation_id, transaction_status, transaction_reference)
     # Déclencher les actions correspondantes
-    trigger_post_payment_actions(transaction_id)
+    trigger_post_payment_actions(server_correlation_id, transaction_reference)
 ```
 
 ## Test des webhooks en développement
@@ -293,16 +339,16 @@ Vous pouvez simuler des webhooks pour tester votre logique de traitement:
 # test_webhooks.py
 import requests
 import json
+import uuid
+from datetime import datetime
 
-def simulate_webhook(callback_url, transaction_id, status):
+def simulate_webhook(callback_url, server_correlation_id, status):
     # Créer un payload de test
     webhook_data = {
-        "transactionId": transaction_id,
-        "status": status,
-        "amount": 1000,
-        "currency": "Ar",
-        "financialTransactionId": "12345678",
-        "externalId": "REF123456",
+        "transactionStatus": status,
+        "serverCorrelationId": server_correlation_id,
+        "transactionReference": f"REF-{uuid.uuid4().hex[:8].upper()}",
+        "requestDate": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z",
         "debitParty": [
             {
                 "key": "msisdn",
@@ -314,12 +360,27 @@ def simulate_webhook(callback_url, transaction_id, status):
                 "key": "msisdn",
                 "value": "0343500004"
             }
-        ],
-        "timestamp": "2024-07-24T10:15:30.000Z"
+        ]
     }
     
-    # Envoyer la requête
-    response = requests.post(
+    # Ajouter les frais pour les transactions réussies
+    if status == "completed":
+        webhook_data["fees"] = [
+            {
+                "feeAmount": "20"
+            }
+        ]
+    
+    # Ajouter des métadonnées
+    webhook_data["metadata"] = [
+        {
+            "key": "partnerName",
+            "value": "NomPartenaire"
+        }
+    ]
+    
+    # Envoyer la requête PUT (MVola utilise PUT pour les callbacks)
+    response = requests.put(
         callback_url,
         json=webhook_data,
         headers={"Content-Type": "application/json"}
@@ -329,9 +390,12 @@ def simulate_webhook(callback_url, transaction_id, status):
     print(f"Réponse: {response.text}")
 
 # Simuler différents statuts
-simulate_webhook("http://localhost:5000/webhooks/mvola/callback", "test-123", "pending")
-simulate_webhook("http://localhost:5000/webhooks/mvola/callback", "test-123", "completed")
-simulate_webhook("http://localhost:5000/webhooks/mvola/callback", "test-456", "failed")
+simulate_webhook("http://localhost:5000/webhooks/mvola/callback", 
+                 "corr-" + str(uuid.uuid4()), "pending")
+simulate_webhook("http://localhost:5000/webhooks/mvola/callback", 
+                 "corr-" + str(uuid.uuid4()), "completed")
+simulate_webhook("http://localhost:5000/webhooks/mvola/callback", 
+                 "corr-" + str(uuid.uuid4()), "failed")
 ```
 
 ## Journalisation et monitoring
@@ -354,7 +418,7 @@ logging.basicConfig(
 logger = logging.getLogger('mvola_webhooks')
 
 # Dans le handler de webhook
-@webhook_bp.route('/mvola/callback', methods=['POST'])
+@webhook_bp.route('/mvola/callback', methods=['PUT'])
 def mvola_callback():
     webhook_data = request.get_json()
     
@@ -364,7 +428,7 @@ def mvola_callback():
     # Traitement...
     
     # Journalisation du résultat
-    logger.info(f"Webhook traité avec succès pour la transaction {webhook_data.get('transactionId')}")
+    logger.info(f"Webhook traité avec succès pour la transaction {webhook_data.get('serverCorrelationId')}")
     
     return jsonify({"status": "success"}), 200
 ```
@@ -400,7 +464,7 @@ webhook_queue = Queue()
 
 webhook_bp = Blueprint('webhook', __name__, url_prefix='/webhooks')
 
-@webhook_bp.route('/mvola/callback', methods=['POST'])
+@webhook_bp.route('/mvola/callback', methods=['PUT'])
 def mvola_callback():
     start_time = time.time()
     
@@ -416,15 +480,15 @@ def mvola_callback():
         return jsonify({"status": "error", "message": "Empty payload"}), 400
     
     # 2. Validation minimale des données requises
-    transaction_id = webhook_data.get('transactionId')
-    status = webhook_data.get('status')
+    server_correlation_id = webhook_data.get('serverCorrelationId')
+    transaction_status = webhook_data.get('transactionStatus')
     
-    if not transaction_id or not status:
+    if not server_correlation_id or not transaction_status:
         logger.error(f"Données incomplètes: {json.dumps(webhook_data)}")
         return jsonify({"status": "error", "message": "Missing required fields"}), 400
     
     # 3. Journalisation
-    logger.info(f"Webhook reçu pour transaction {transaction_id}, statut: {status}")
+    logger.info(f"Webhook reçu pour transaction {server_correlation_id}, statut: {transaction_status}")
     
     # 4. Traitement asynchrone pour éviter de bloquer la réponse
     webhook_queue.put(webhook_data)
@@ -436,7 +500,7 @@ def mvola_callback():
     return jsonify({
         "status": "success", 
         "message": "Webhook received and queued for processing",
-        "transaction_id": transaction_id
+        "server_correlation_id": server_correlation_id
     }), 200
 
 # Traitement des webhooks en arrière-plan
@@ -449,37 +513,38 @@ def process_webhook_queue():
             if not webhook_data:
                 continue
                 
-            transaction_id = webhook_data.get('transactionId')
-            status = webhook_data.get('status')
+            server_correlation_id = webhook_data.get('serverCorrelationId')
+            transaction_status = webhook_data.get('transactionStatus')
+            transaction_reference = webhook_data.get('transactionReference')
             
-            logger.info(f"Traitement du webhook pour transaction {transaction_id}")
+            logger.info(f"Traitement du webhook pour transaction {server_correlation_id}")
             
             # Vérifier si la transaction existe et n'a pas déjà été traitée
-            transaction = get_transaction(transaction_id)
+            transaction = get_transaction(server_correlation_id)
             
             if not transaction:
-                logger.warning(f"Transaction inconnue: {transaction_id}")
+                logger.warning(f"Transaction inconnue: {server_correlation_id}")
                 webhook_queue.task_done()
                 continue
             
-            if transaction.status == status:
-                logger.info(f"Transaction {transaction_id} déjà dans l'état {status}, ignorée")
+            if transaction.status == transaction_status:
+                logger.info(f"Transaction {server_correlation_id} déjà dans l'état {transaction_status}, ignorée")
                 webhook_queue.task_done()
                 continue
             
             # Traiter selon le statut
-            if status == 'completed':
+            if transaction_status == 'completed':
                 # Marquer la commande comme payée, envoyer confirmation, etc.
-                complete_order(transaction)
-                logger.info(f"Transaction {transaction_id} complétée et traitée")
+                complete_order(transaction, transaction_reference)
+                logger.info(f"Transaction {server_correlation_id} complétée et traitée")
                 
-            elif status in ['failed', 'rejected', 'cancelled']:
+            elif transaction_status == 'failed':
                 # Marquer la commande comme échouée
-                fail_order(transaction, status)
-                logger.info(f"Transaction {transaction_id} échouée: {status}")
+                fail_order(transaction)
+                logger.info(f"Transaction {server_correlation_id} échouée")
                 
             # Mettre à jour le statut dans la base de données
-            update_transaction_status(transaction_id, status)
+            update_transaction_status(server_correlation_id, transaction_status, transaction_reference)
             
             # Signaler que le traitement est terminé
             webhook_queue.task_done()
@@ -493,19 +558,19 @@ webhook_processor = Thread(target=process_webhook_queue, daemon=True)
 webhook_processor.start()
 
 # Fonctions fictives à implémenter selon votre application
-def get_transaction(transaction_id):
+def get_transaction(server_correlation_id):
     # Récupérer la transaction depuis la base de données
     pass
 
-def update_transaction_status(transaction_id, status):
+def update_transaction_status(server_correlation_id, status, transaction_reference=None):
     # Mettre à jour le statut dans la base de données
     pass
 
-def complete_order(transaction):
+def complete_order(transaction, transaction_reference):
     # Marquer la commande comme payée
     pass
 
-def fail_order(transaction, reason):
+def fail_order(transaction):
     # Marquer la commande comme échouée
     pass
 ```

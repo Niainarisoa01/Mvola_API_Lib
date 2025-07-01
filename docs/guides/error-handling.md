@@ -4,7 +4,7 @@ Ce guide explique comment gérer efficacement les erreurs qui peuvent survenir l
 
 ## Introduction
 
-La bibliothèque MVola API utilise un système d'exceptions hiérarchique pour vous permettre de gérer facilement les différents types d'erreurs qui peuvent se produire lors des opérations avec l'API MVola.
+La bibliothèque MVola API utilise un système d'exceptions hiérarchique pour vous permettre de gérer facilement les différents types d'erreurs qui peuvent se produire lors des opérations avec l'API MVola. Ce guide couvre les codes d'erreur standard de l'API MVola et comment les gérer efficacement dans votre application.
 
 ## Hiérarchie des exceptions
 
@@ -26,6 +26,53 @@ MVolaError (Exception de base)
 ```
 
 Cette hiérarchie vous permet de capturer des erreurs à différents niveaux de spécificité selon vos besoins.
+
+## Codes d'erreur HTTP de l'API MVola
+
+L'API MVola utilise les codes d'erreur HTTP standard pour indiquer si une requête a réussi ou échoué. Voici les principaux codes que vous pourriez rencontrer :
+
+| Code | Description | Traitement recommandé |
+|------|-------------|------------------------|
+| 200 | OK - La requête a réussi | Traiter la réponse normalement |
+| 400 | Bad Request - Requête incorrecte, souvent en raison d'un paramètre manquant | Vérifier les paramètres de votre requête |
+| 401 | Unauthorized - Clé API invalide fournie | Vérifier vos identifiants d'API ou générer un nouveau token |
+| 402 | Request Failed - Les paramètres sont valides mais la requête a échoué | Vérifier l'état du compte MVola ou les limites de transaction |
+| 403 | Forbidden - La clé API n'a pas les permissions nécessaires | Demander les autorisations appropriées pour votre application |
+| 404 | Not Found - La ressource demandée n'existe pas | Vérifier l'URL ou l'ID de la ressource |
+| 409 | Conflict - La requête est en conflit avec une autre requête | Éviter les requêtes dupliquées ou attendez et réessayez |
+| 429 | Too Many Requests - Trop de requêtes envoyées à l'API trop rapidement | Implémenter un système de backoff exponentiel |
+| 500, 502, 503, 504 | Server Errors - Erreur au niveau du serveur | Attendre et réessayer plus tard |
+
+### Format des réponses d'erreur
+
+Les erreurs de l'API MVola sont généralement retournées au format JSON avec la structure suivante :
+
+```json
+{
+  "ErrorCategory": "Catégorie de l'erreur",
+  "ErrorCode": "Code d'erreur spécifique",
+  "ErrorDescription": "Description détaillée de l'erreur",
+  "ErrorDateTime": "Date et heure de l'erreur",
+  "ErrorParameters": {
+    "key1": "value1",
+    "key2": "value2"
+  }
+}
+```
+
+Pour les erreurs d'authentification, le format peut être différent :
+
+```json
+{
+  "fault": {
+    "code": 900901,
+    "message": "Invalid Credentials",
+    "description": "Invalid Credentials. Make sure you have given the correct access token"
+  }
+}
+```
+
+La bibliothèque MVola API analyse ces réponses d'erreur et les convertit en exceptions appropriées que vous pouvez gérer dans votre code.
 
 ## Importation des exceptions
 
@@ -160,11 +207,12 @@ except MVolaTokenExpiredError as e:
 ```python
 try:
     # Tenter un paiement avec des données invalides
-    client.initiate_payment(
+    client.initiate_merchant_payment(
         amount=-100,  # Montant négatif (invalide)
+        currency="Ar",
         debit_msisdn="0343500003",
         credit_msisdn="0343500004",
-        reference="REF123456",
+        requesting_organisation_transaction_reference="REF123456",
         description="Paiement test"
     )
 except MVolaTransactionValidationError as e:

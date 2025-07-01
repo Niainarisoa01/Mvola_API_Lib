@@ -23,7 +23,7 @@ MVola offre deux environnements distincts :
 |-----------------|---------|------------|
 | Transactions réelles | Non | Oui |
 | Limites de transaction | Illimitées | Selon la réglementation |
-| URL de base | api-uat.orange.mg | api.orange.mg |
+| URL de base | https://devapi.mvola.mg | https://api.mvola.mg |
 | Nécessite validation | Non | Oui |
 
 ## Configuration de l'authentification
@@ -39,7 +39,16 @@ client = MVolaClient(
     consumer_secret="votre_consumer_secret",
     partner_name="Nom de votre application",
     partner_msisdn="0343500003",  # Votre numéro MVola
-    sandbox=True  # Pour l'environnement de test
+    base_url="https://devapi.mvola.mg"  # URL pour l'environnement sandbox
+)
+
+# Ou pour la production
+client = MVolaClient(
+    consumer_key="votre_consumer_key",
+    consumer_secret="votre_consumer_secret",
+    partner_name="Nom de votre application",
+    partner_msisdn="0343500003",  # Votre numéro MVola
+    base_url="https://api.mvola.mg"  # URL pour l'environnement de production
 )
 ```
 
@@ -54,7 +63,7 @@ MVOLA_CONSUMER_KEY=votre_consumer_key
 MVOLA_CONSUMER_SECRET=votre_consumer_secret
 MVOLA_PARTNER_NAME=Nom de votre application
 MVOLA_PARTNER_MSISDN=0343500003
-MVOLA_SANDBOX=True
+MVOLA_BASE_URL=https://devapi.mvola.mg
 ```
 
 Puis, dans votre code :
@@ -73,9 +82,29 @@ client = MVolaClient(
     consumer_secret=os.getenv("MVOLA_CONSUMER_SECRET"),
     partner_name=os.getenv("MVOLA_PARTNER_NAME"),
     partner_msisdn=os.getenv("MVOLA_PARTNER_MSISDN"),
-    sandbox=os.getenv("MVOLA_SANDBOX", "True").lower() == "true"
+    base_url=os.getenv("MVOLA_BASE_URL")
 )
 ```
+
+## Processus d'authentification
+
+L'authentification MVola utilise le protocole OAuth 2.0 avec le flux `client_credentials` et le scope `EXT_INT_MVOLA_SCOPE`. Voici comment cela fonctionne :
+
+1. La bibliothèque MVola API envoie une requête à l'endpoint `/token` avec :
+   - Un en-tête `Authorization: Basic` contenant vos credentials encodés en Base64
+   - Des données de formulaire contenant `grant_type=client_credentials` et `scope=EXT_INT_MVOLA_SCOPE`
+
+2. Le serveur MVola répond avec un token d'accès :
+   ```json
+   {
+     "access_token": "<ACCESS_TOKEN>",
+     "scope": "EXT_INT_MVOLA_SCOPE",
+     "token_type": "Bearer",
+     "expires_in": 3600
+   }
+   ```
+
+3. Ce token est ensuite utilisé pour authentifier toutes les requêtes suivantes à l'API MVola.
 
 ## Gestion des tokens
 
@@ -94,7 +123,7 @@ Vous n'avez généralement pas besoin de manipuler les tokens directement.
 
 ```python
 # Le token est généré automatiquement lors de la première utilisation
-transaction_info = client.initiate_payment(...)
+transaction_info = client.initiate_merchant_payment(...)
 
 # Pour accéder manuellement au token (rarement nécessaire)
 token = client.auth.get_valid_token()
@@ -118,11 +147,11 @@ from mvola_api.exceptions import MVolaAuthError, MVolaInvalidCredentialsError
 
 try:
     # Une opération qui nécessite une authentification
-    client.initiate_payment(
+    client.initiate_merchant_payment(
         amount=1000,
         debit_msisdn="0343500003",
         credit_msisdn="0343500004",
-        reference="REF123456",
+        requesting_organisation_transaction_reference="REF123456",
         description="Paiement test"
     )
 except MVolaInvalidCredentialsError as e:
@@ -132,6 +161,22 @@ except MVolaAuthError as e:
     print(f"Erreur d'authentification: {e}")
     # Gérer les autres erreurs d'authentification
 ```
+
+## Codes d'erreur HTTP
+
+L'API MVola utilise les codes d'erreur HTTP standard pour indiquer le résultat des requêtes d'authentification :
+
+| Code | Description |
+|------|-------------|
+| 200 | OK - La requête a réussi |
+| 400 | Bad Request - Requête incorrecte, souvent en raison d'un paramètre manquant |
+| 401 | Unauthorized - Clé API invalide fournie |
+| 402 | Request Failed - Les paramètres sont valides mais la requête a échoué |
+| 403 | Forbidden - La clé API n'a pas les permissions nécessaires |
+| 404 | Not Found - La ressource demandée n'existe pas |
+| 409 | Conflict - La requête est en conflit avec une autre requête |
+| 429 | Too Many Requests - Trop de requêtes envoyées à l'API trop rapidement |
+| 500, 502, 503, 504 | Server Errors - Erreur au niveau du serveur |
 
 ## Bonnes pratiques de sécurité
 
@@ -145,10 +190,11 @@ except MVolaAuthError as e:
 
 Lorsque vous êtes prêt à passer en production :
 
-1. Obtenez des identifiants API de production auprès de MVola
-2. Mettez à jour votre configuration pour utiliser `sandbox=False`
-3. Assurez-vous que votre application respecte toutes les exigences de sécurité
-4. Effectuez des tests de bout en bout avec des montants minimes avant de manipuler des transactions plus importantes
+1. Suivez le processus "GO LIVE" sur le portail développeur MVola
+2. Obtenez des identifiants API de production auprès de MVola
+3. Mettez à jour votre configuration pour utiliser l'URL de production `https://api.mvola.mg`
+4. Assurez-vous que votre application respecte toutes les exigences de sécurité
+5. Effectuez des tests de bout en bout avec des montants minimes avant de manipuler des transactions plus importantes
 
 ## Prochaines étapes
 

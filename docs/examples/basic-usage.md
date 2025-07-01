@@ -23,26 +23,34 @@ client = MVolaClient(
     consumer_secret="votre_consumer_secret",
     partner_name="Nom de votre application",
     partner_msisdn="0343500003",  # Votre numéro MVola
-    sandbox=True  # Pour l'environnement de test
+    base_url="https://devapi.mvola.mg"  # URL de l'API sandbox
+)
+
+# Initialisation pour l'environnement de production
+prod_client = MVolaClient(
+    consumer_key="votre_consumer_key_prod",
+    consumer_secret="votre_consumer_secret_prod",
+    partner_name="Nom de votre application",
+    partner_msisdn="0343500003",  # Votre numéro MVola
+    base_url="https://api.mvola.mg"  # URL de l'API de production
 )
 ```
 
 ## Génération d'un token
 
-La bibliothèque gère automatiquement les tokens d'authentification, mais vous pouvez également générer ou rafraîchir un token manuellement :
+La bibliothèque gère automatiquement les tokens d'authentification, mais vous pouvez également générer un token manuellement :
 
 ```python
 # Générer un token d'authentification
 token = client.generate_token()
 print(f"Token: {token['access_token']}")
 print(f"Expire dans: {token['expires_in']} secondes")
+print(f"Type: {token['token_type']}")
+print(f"Scope: {token['scope']}")
 
-# Vérifier si un token est expiré
-is_expired = client.is_token_expired()
-print(f"Token expiré: {is_expired}")
-
-# Rafraîchir manuellement le token
-client.refresh_token()
+# Obtenir directement le token d'accès (la méthode génère un nouveau token si nécessaire)
+access_token = client.get_access_token()
+print(f"Token d'accès: {access_token}")
 ```
 
 ## Initier un paiement
@@ -51,18 +59,24 @@ Pour initier un paiement MVola :
 
 ```python
 try:
-    transaction_info = client.initiate_payment(
-        amount=1000,                             # Montant en ariary
+    transaction_info = client.initiate_merchant_payment(
+        amount="1000",                           # Montant en ariary (chaîne)
         debit_msisdn="0343500003",               # Numéro qui paie
         credit_msisdn="0343500004",              # Numéro qui reçoit
-        reference="REF123456",                   # Référence unique
-        description="Paiement pour produit ABC", # Description
+        description="Paiement pour produit ABC", # Description (max 50 caractères)
+        currency="Ar",                           # Devise (Ar par défaut)
+        requesting_organisation_transaction_reference="REF123456",  # Référence unique (optionnel)
         callback_url="https://example.com/callback"  # URL de notification (optionnel)
     )
     
-    # Récupérer l'ID de la transaction pour suivi ultérieur
-    transaction_id = transaction_info.get('server_correlation_id')
-    print(f"Transaction initiée avec succès. ID: {transaction_id}")
+    # Récupérer les informations importantes
+    server_correlation_id = transaction_info['response']['serverCorrelationId']
+    status = transaction_info['response']['status']  # Généralement "pending" à ce stade
+    notification_method = transaction_info['response']['notificationMethod']  # "callback" ou "polling"
+    
+    print(f"Transaction initiée avec succès. ID: {server_correlation_id}")
+    print(f"Statut initial: {status}")
+    print(f"Méthode de notification: {notification_method}")
     
 except Exception as e:
     print(f"Erreur lors de l'initiation du paiement: {e}")
@@ -75,22 +89,20 @@ Pour vérifier le statut d'une transaction en cours :
 ```python
 try:
     status_info = client.get_transaction_status(
-        transaction_id="transaction-id-12345",  # ID obtenu lors de l'initiation
-        msisdn="0343500003"                     # Numéro associé à la transaction
+        server_correlation_id="server-correlation-id-12345"  # ID obtenu lors de l'initiation
     )
     
-    status = status_info.get('status')
-    print(f"Statut de la transaction: {status}")
+    status = status_info['response']['status']
+    print(f"Statut de la transaction: {status}")  # pending, completed, ou failed
     
-    # États possibles : pending, completed, failed, cancelled
-    if status == 'completed':
-        print("Transaction réussie!")
+    # États possibles : pending, completed, failed
+    if status == 'completed' and 'objectReference' in status_info['response']:
+        transaction_id = status_info['response']['objectReference']
+        print(f"Transaction réussie! ID de transaction: {transaction_id}")
     elif status == 'pending':
         print("Transaction en attente de confirmation...")
     else:
         print(f"Transaction terminée avec statut: {status}")
-        if 'reason' in status_info:
-            print(f"Raison: {status_info['reason']}")
     
 except Exception as e:
     print(f"Erreur lors de la vérification du statut: {e}")
@@ -102,26 +114,28 @@ Pour obtenir tous les détails d'une transaction terminée :
 
 ```python
 try:
+    # Note: Vous avez besoin de l'ID de transaction (objectReference) et non du server_correlation_id
     transaction_details = client.get_transaction_details(
-        transaction_id="transaction-id-12345"  # ID obtenu lors de l'initiation
+        transaction_id="transaction-id-12345"  # ID obtenu après complétion
     )
     
-    print(f"Détails de la transaction: {transaction_details}")
-    print(f"Montant: {transaction_details.get('amount')} {transaction_details.get('currency')}")
-    print(f"ID financier: {transaction_details.get('financialTransactionId')}")
-    print(f"Date de création: {transaction_details.get('creationDate')}")
+    details = transaction_details['response']
+    print(f"Montant: {details.get('amount')} {details.get('currency')}")
+    print(f"Statut: {details.get('transactionStatus')}")
+    print(f"Référence: {details.get('transactionReference')}")
+    print(f"Date: {details.get('createDate')}")
     
     # Accéder aux informations du payeur
-    debit_party = transaction_details.get('debitParty', [])
-    for party in debit_party:
-        if party.get('key') == 'msisdn':
-            print(f"Payeur: {party.get('value')}")
+    debit_party = next((party for party in details.get('debitParty', []) if party.get('key') == 'msisdn'), {})
+    print(f"Payeur: {debit_party.get('value')}")
     
     # Accéder aux informations du bénéficiaire
-    credit_party = transaction_details.get('creditParty', [])
-    for party in credit_party:
-        if party.get('key') == 'msisdn':
-            print(f"Bénéficiaire: {party.get('value')}")
+    credit_party = next((party for party in details.get('creditParty', []) if party.get('key') == 'msisdn'), {})
+    print(f"Bénéficiaire: {credit_party.get('value')}")
+    
+    # Accéder aux frais
+    fee = next((f for f in details.get('fee', [])), {})
+    print(f"Frais: {fee.get('feeAmount')}")
     
 except Exception as e:
     print(f"Erreur lors de la récupération des détails: {e}")
@@ -134,7 +148,11 @@ Voici un exemple complet qui combine plusieurs opérations :
 ```python
 from mvola_api import MVolaClient
 from mvola_api.exceptions import MVolaError, MVolaTransactionError
-from mvola_api.utils import generate_reference
+import uuid
+import time
+
+# Générer un ID de corrélation unique pour cette session
+correlation_id = str(uuid.uuid4())
 
 # Initialisation du client
 try:
@@ -143,37 +161,66 @@ try:
         consumer_secret="votre_consumer_secret",
         partner_name="Nom de votre application",
         partner_msisdn="0343500003",
-        sandbox=True
+        base_url="https://devapi.mvola.mg"
     )
     
     # Générer une référence unique pour la transaction
-    reference = generate_reference(prefix="PAY")
+    reference = f"REF-{uuid.uuid4().hex[:8].upper()}"
     
     # Initier un paiement
-    transaction_info = client.initiate_payment(
-        amount=1000,
+    print("Initiation du paiement...")
+    transaction_info = client.initiate_merchant_payment(
+        amount="1000",
         debit_msisdn="0343500003",
         credit_msisdn="0343500004",
-        reference=reference,
-        description="Paiement test"
+        description="Paiement test",
+        requesting_organisation_transaction_reference=reference,
+        correlation_id=correlation_id
     )
     
-    transaction_id = transaction_info.get('server_correlation_id')
+    server_correlation_id = transaction_info['response']['serverCorrelationId']
     print(f"Transaction initiée avec succès!")
-    print(f"ID de transaction: {transaction_id}")
+    print(f"ID de corrélation du serveur: {server_correlation_id}")
     print(f"Référence: {reference}")
     
     # Vérifier le statut initial
+    print("\nVérification du statut initial...")
     status_info = client.get_transaction_status(
-        transaction_id=transaction_id,
-        msisdn="0343500003"
+        server_correlation_id=server_correlation_id,
+        correlation_id=correlation_id
     )
     
-    print(f"Statut initial: {status_info.get('status')}")
+    print(f"Statut initial: {status_info['response']['status']}")
     print("Veuillez confirmer la transaction sur votre téléphone...")
     
-    # Dans une application réelle, vous pourriez implémenter une boucle de polling
-    # pour vérifier régulièrement le statut, ou utiliser des webhooks
+    # Simuler une attente pour la confirmation
+    print("\nAttente de la confirmation de la transaction (simulation)...")
+    time.sleep(5)  # Attendre 5 secondes pour la simulation
+    
+    # Vérifier à nouveau le statut
+    print("\nVérification du statut après confirmation...")
+    status_info = client.get_transaction_status(
+        server_correlation_id=server_correlation_id,
+        correlation_id=correlation_id
+    )
+    
+    status = status_info['response']['status']
+    print(f"Statut actuel: {status}")
+    
+    # Si la transaction est complétée, récupérer les détails
+    if status == 'completed' and 'objectReference' in status_info['response']:
+        transaction_id = status_info['response']['objectReference']
+        
+        print("\nRécupération des détails de la transaction...")
+        details = client.get_transaction_details(
+            transaction_id=transaction_id,
+            correlation_id=correlation_id
+        )
+        
+        print(f"Détails de la transaction:")
+        print(f"- Montant: {details['response'].get('amount')} {details['response'].get('currency')}")
+        print(f"- Statut: {details['response'].get('transactionStatus')}")
+        print(f"- Date: {details['response'].get('createDate')}")
     
 except MVolaTransactionError as e:
     print(f"Erreur de transaction: {e}")
@@ -182,6 +229,8 @@ except MVolaTransactionError as e:
     
 except MVolaError as e:
     print(f"Erreur MVola: {e}")
+    if hasattr(e, 'status_code'):
+        print(f"Code HTTP: {e.status_code}")
     
 except Exception as e:
     print(f"Erreur inattendue: {e}")

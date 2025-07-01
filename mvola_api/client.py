@@ -89,6 +89,8 @@ class MVolaClient:
         foreign_amount=None,
         callback_url=None,
         user_language="FR",
+        requesting_organisation_transaction_reference=None,
+        original_transaction_reference=None,
     ):
         """
         Initiate a merchant payment
@@ -103,6 +105,8 @@ class MVolaClient:
             foreign_amount (str|float|int, optional): Amount in foreign currency
             callback_url (str, optional): Callback URL for notifications
             user_language (str, optional): User language (FR or MG)
+            requesting_organisation_transaction_reference (str, optional): Transaction ID on client side
+            original_transaction_reference (str, optional): Reference number related to original transaction
 
         Returns:
             dict: Transaction response
@@ -132,6 +136,8 @@ class MVolaClient:
                 foreign_amount=foreign_amount_str,
                 callback_url=callback_url,
                 user_language=user_language,
+                requesting_organisation_transaction_reference=requesting_organisation_transaction_reference,
+                original_transaction_reference=original_transaction_reference,
             )
 
             self.logger.info(f"Payment initiated: {result.get('correlation_id', '')}")

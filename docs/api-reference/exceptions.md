@@ -9,14 +9,14 @@ La bibliothèque utilise une hiérarchie d'exceptions pour vous permettre de cap
 ```
 MVolaError (Exception de base)
 ├── MVolaAuthError (Erreurs d'authentification)
-│   ├── MVolaInvalidCredentialsError
-│   └── MVolaTokenExpiredError
+│   └── MVolaInvalidCredentialsError
 ├── MVolaTransactionError (Erreurs de transaction)
 │   ├── MVolaTransactionValidationError
 │   ├── MVolaTransactionStatusError
 │   └── MVolaTransactionCreationError
 ├── MVolaValidationError (Erreurs de validation)
-│   └── MVolaInvalidParameterError
+│   ├── MVolaInvalidParameterError
+│   └── MVolaInvalidDescriptionError
 ├── MVolaConnectionError (Erreurs de connexion)
 │   ├── MVolaRequestTimeoutError
 │   └── MVolaServerError
@@ -34,7 +34,8 @@ try:
     # Code utilisant MVola API
 except mvola_api.exceptions.MVolaError as e:
     print(f"Une erreur MVola s'est produite: {e}")
-    print(f"Détails supplémentaires: {e.details}")
+    print(f"Détails supplémentaires: {e.details if hasattr(e, 'details') else 'Aucun'}")
+    print(f"Code HTTP: {e.status_code if hasattr(e, 'status_code') else 'N/A'}")
 ```
 
 ## Exceptions d'authentification
@@ -52,21 +53,9 @@ try:
     auth.generate_token()
 except mvola_api.exceptions.MVolaInvalidCredentialsError as e:
     print(f"Identifiants invalides: {e}")
-    print(f"Code d'erreur: {e.error_code}")
-```
-
-### MVolaTokenExpiredError
-
-Levée lorsqu'un token d'authentification a expiré et qu'une opération tente de l'utiliser.
-
-```python
-try:
-    transaction.initiate_payment(...)
-except mvola_api.exceptions.MVolaTokenExpiredError as e:
-    print(f"Token expiré: {e}")
-    # Rafraîchir le token et réessayer
-    auth.refresh_token()
-    transaction.initiate_payment(...)
+    print(f"Message d'erreur: {e.message}")
+    print(f"Code d'erreur: {e.code}")
+    print(f"Description: {e.description}")
 ```
 
 ## Exceptions de transaction
@@ -77,11 +66,11 @@ Cette classe représente les erreurs qui se produisent lors des opérations de t
 
 ### MVolaTransactionValidationError
 
-Levée lorsque les données de transaction ne passent pas la validation (montant incorrect, numéro de téléphone invalide, etc.).
+Levée lorsque les données de transaction ne passent pas la validation (montant incorrect, numéro de téléphone invalide, description non conforme, etc.).
 
 ```python
 try:
-    transaction.initiate_payment(amount=-100, ...)  # Montant négatif
+    transaction.initiate_merchant_payment(amount="-100", ...)  # Montant négatif
 except mvola_api.exceptions.MVolaTransactionValidationError as e:
     print(f"Erreur de validation: {e}")
     print(f"Champ en erreur: {e.field}")
@@ -94,10 +83,12 @@ Levée lorsqu'une erreur se produit pendant la vérification du statut d'une tra
 
 ```python
 try:
-    transaction.get_transaction_status(transaction_id="id-inexistant", ...)
+    transaction.get_transaction_status(server_correlation_id="id-inexistant", ...)
 except mvola_api.exceptions.MVolaTransactionStatusError as e:
     print(f"Erreur de statut: {e}")
-    print(f"ID de transaction: {e.transaction_id}")
+    print(f"ID de corrélation: {e.server_correlation_id}")
+    print(f"Code d'erreur: {e.error_code}")
+    print(f"Description: {e.error_description}")
 ```
 
 ### MVolaTransactionCreationError
@@ -106,10 +97,14 @@ Levée lorsqu'une erreur se produit pendant la création d'une transaction.
 
 ```python
 try:
-    transaction.initiate_payment(...)
+    transaction.initiate_merchant_payment(...)
 except mvola_api.exceptions.MVolaTransactionCreationError as e:
     print(f"Erreur lors de la création de la transaction: {e}")
-    print(f"Détails: {e.details}")
+    print(f"Catégorie d'erreur: {e.error_category}")
+    print(f"Code d'erreur: {e.error_code}")
+    print(f"Description: {e.error_description}")
+    print(f"Date et heure: {e.error_datetime}")
+    print(f"Paramètres: {e.error_parameters}")
 ```
 
 ## Exceptions de validation
@@ -131,6 +126,23 @@ except mvola_api.exceptions.MVolaInvalidParameterError as e:
     print(f"Raison: {e.reason}")
 ```
 
+### MVolaInvalidDescriptionError
+
+Levée lorsque le texte de description ne respecte pas les contraintes de l'API MVola (max 50 caractères, caractères spéciaux limités).
+
+```python
+try:
+    # Description trop longue ou avec caractères non autorisés
+    transaction.initiate_merchant_payment(
+        description="Texte avec caractères spéciaux interdits ! @ # $ % ^ & * ( )",
+        ...
+    )
+except mvola_api.exceptions.MVolaInvalidDescriptionError as e:
+    print(f"Description invalide: {e}")
+    print(f"Texte fourni: {e.description}")
+    print(f"Raison: {e.reason}")
+```
+
 ## Exceptions de connexion
 
 `MVolaConnectionError`
@@ -143,7 +155,7 @@ Levée lorsqu'une requête dépasse le délai d'attente configuré.
 
 ```python
 try:
-    transaction.initiate_payment(...)
+    transaction.initiate_merchant_payment(...)
 except mvola_api.exceptions.MVolaRequestTimeoutError as e:
     print(f"Délai d'attente dépassé: {e}")
     print(f"URL: {e.url}")
@@ -156,7 +168,7 @@ Levée lorsque le serveur MVola renvoie une erreur (500, 502, 503, etc.).
 
 ```python
 try:
-    transaction.initiate_payment(...)
+    transaction.initiate_merchant_payment(...)
 except mvola_api.exceptions.MVolaServerError as e:
     print(f"Erreur serveur MVola: {e}")
     print(f"Code HTTP: {e.status_code}")
@@ -178,6 +190,39 @@ except mvola_api.exceptions.MVolaConfigError as e:
     print(f"Erreur de configuration: {e}")
 ```
 
+## Formats d'erreur de l'API MVola
+
+L'API MVola renvoie des erreurs dans deux formats différents selon le type d'erreur.
+
+### Format d'erreur standard
+
+```json
+{
+    "ErrorCategory": "Error category",
+    "ErrorCode": "Error Code",
+    "ErrorDescription": "Description on the error",
+    "ErrorDateTime": "Date and time when the error occurred",
+    "ErrorParameters": {
+        "key1": "value1",
+        "key2": "value2"
+    }
+}
+```
+
+### Format d'erreur d'authentification
+
+```json
+{
+    "fault": {
+        "code": 900901,
+        "message": "Invalid Credentials",
+        "description": "Invalid Credentials. Make sure you have given the correct access token"
+    }
+}
+```
+
+La bibliothèque MVola API transforme ces formats d'erreur en exceptions Python appropriées, en préservant toutes les informations pertinentes.
+
 ## Stratégies de gestion des erreurs
 
 ### Approche par type spécifique
@@ -193,9 +238,15 @@ except mvola_api.exceptions.MVolaInvalidCredentialsError as e:
 except mvola_api.exceptions.MVolaAuthError as e:
     # Gérer les autres erreurs d'authentification
     print(f"Erreur d'authentification: {e}")
+except mvola_api.exceptions.MVolaTransactionValidationError as e:
+    # Gérer les erreurs de validation
+    print(f"Erreur de validation: {e}")
 except mvola_api.exceptions.MVolaTransactionError as e:
-    # Gérer les erreurs de transaction
+    # Gérer les autres erreurs de transaction
     print(f"Erreur de transaction: {e}")
+except mvola_api.exceptions.MVolaConnectionError as e:
+    # Gérer les erreurs de connexion
+    print(f"Erreur de connexion: {e}")
 except mvola_api.exceptions.MVolaError as e:
     # Gérer toutes les autres erreurs MVola
     print(f"Erreur MVola: {e}")
@@ -217,7 +268,7 @@ retry_count = 0
 
 while retry_count < max_retries:
     try:
-        result = transaction.initiate_payment(...)
+        result = transaction.initiate_merchant_payment(...)
         # Succès, sortie de la boucle
         break
     except (MVolaRequestTimeoutError, MVolaServerError) as e:
@@ -231,17 +282,33 @@ while retry_count < max_retries:
         time.sleep(wait_time)
 ```
 
+## Codes d'erreur HTTP
+
+L'API utilise les codes d'erreur HTTP standard:
+
+- **200 - OK**: Tout a fonctionné comme prévu.
+- **400 - Bad Request**: La requête est inacceptable, souvent en raison d'un paramètre manquant.
+- **401 - Unauthorized**: Aucune clé API valide fournie.
+- **402 - Request Failed**: Les paramètres étaient valides mais la requête a échoué.
+- **403 - Forbidden**: La clé API n'a pas les permissions pour effectuer la requête.
+- **404 - Not Found**: La ressource demandée n'existe pas.
+- **409 - Conflict**: La requête est en conflit avec une autre requête.
+- **429 - Too Many Requests**: Trop de requêtes envoyées à l'API trop rapidement.
+- **500, 502, 503, 504 - Server Errors**: Une erreur s'est produite sur le serveur.
+
 ## Bonnes pratiques
 
 1. **Utilisez des exceptions spécifiques** : Attrapez les exceptions les plus spécifiques pertinentes pour votre cas d'utilisation.
 
 2. **Journalisez les détails** : Les exceptions contiennent des informations utiles pour le débogage - journalisez-les.
 
-3. **Implémentez des retries** : Pour les erreurs temporaires, mettez en place une logique de retry avec backoff.
+3. **Implémentez des retries** : Pour les erreurs temporaires, mettez en place une logique de retry avec backoff exponentiel.
 
 4. **Validez en amont** : Pour éviter certaines exceptions de validation, validez vos données avant d'appeler l'API.
 
-5. **Informez clairement l'utilisateur** : Transformez les exceptions techniques en messages compréhensibles pour l'utilisateur final.
+5. **Backoff exponentiel** : En cas d'erreur 429 (trop de requêtes), implémentez un délai exponentiel entre les tentatives.
+
+6. **Traitement spécifique** : Certaines erreurs, comme les soldes insuffisants ou les numéros invalides, nécessitent un traitement spécifique dans votre application.
 
 ## Voir aussi
 

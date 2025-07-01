@@ -1,10 +1,10 @@
 site_name: MVola API Library
 site_description: Une bibliothèque Python robuste pour l'intégration de l'API de paiement MVola
 site_author: Niainarisoa
-site_url: https://niainarisoa01.github.io/Mvlola_API_Lib
+site_url: https://niainarisoa01.github.io/Mvola_API_Lib
 
-repo_name: Niainarisoa01/Mvlola_API_Lib
-repo_url: https://github.com/Niainarisoa01/Mvlola_API_Lib
+repo_name: Niainarisoa01/Mvola_API_Lib
+repo_url: https://github.com/Niainarisoa01/Mvola_API_Lib
 edit_uri: edit/main/docs/
 
 theme:
@@ -72,4 +72,10 @@ markdown_extensions:
 extra:
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/Niainarisoa01 
+      link: https://github.com/Niainarisoa01
+  version:
+    provider: mike
+    default: latest
+
+extra_css:
+  - css/custom.css 
