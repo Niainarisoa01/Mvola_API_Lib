@@ -5,43 +5,72 @@ Toutes les modifications notables apportées à ce projet seront documentées da
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/),
 et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.1.0] - 2025-06-30
+## [1.4.0] - 2025-07-04
 
 ### Ajouté
-- Support du nouveau paramètre `scope=EXT_INT_MVOLA_SCOPE` pour l'authentification
-- Support des nouveaux paramètres de transaction: `requestingOrganisationTransactionReference` et `originalTransactionReference`
-- Nouvelle longueur maximale de 50 caractères pour la description des transactions
+- Support des variables d'environnement pour stocker les credentials et la configuration
+- Nouvelle méthode de classe `MVolaClient.from_env()` pour créer un client à partir des variables d'environnement
+- Fichier `.env.example` pour faciliter la configuration
+- Exemple `env_example.py` qui démontre l'utilisation des variables d'environnement
+- Tests spécifiques pour valider la fonctionnalité des variables d'environnement
 
-### Changé
-- Migration des URLs d'API: 
-  - Sandbox: `https://devapi.mvola.mg` (remplace pre-api.mvola.mg)
-  - Production: `https://api.mvola.mg` (remplace api.mvola.mg)
-- Mise à jour du client pour utiliser `base_url` au lieu de `sandbox`
-- Renommage de la méthode `initiate_payment` en `initiate_merchant_payment`
-- Mise à jour complète de la documentation pour refléter les changements d'API
-- Amélioration de la gestion des erreurs avec les nouveaux formats de réponse standardisés
-- Mise à jour du processus de vérification de statut pour utiliser `serverCorrelationId`
+### Modifié
+- MVolaClient accepte maintenant des paramètres optionnels, avec fallback vers les variables d'environnement
+- Tests mis à jour pour utiliser les variables d'environnement
+- Utilisation du langage "MG" par défaut pour améliorer la compatibilité
+- La valeur par défaut pour `originalTransactionReference` est maintenant "MVOLA_123"
+- Corrélation ID fixe "123" pour les tests de compatibilité
 
 ### Corrigé
-- Format de la réponse de callback pour utiliser `transactionStatus` au lieu de `status`
-- Méthode de callback modifiée pour utiliser PUT au lieu de POST
+- Format exact des en-têtes HTTP basé sur les exemples fonctionnels
+- Correction du casse pour l'en-tête "version" (utilisation de la minuscule)
+- Ajout de "Accept-Charset: utf-8" dans les en-têtes par défaut
 
-## [1.0.0] - 2024-07-24
+## [1.3.0] - 2025-07-01
 
 ### Ajouté
-- Première version de la bibliothèque
-- Module d'authentification avec gestion de tokens
-- Module de transaction pour les paiements marchands
-- Support des environnements sandbox et production
-- Gestion complète des erreurs
-- Documentation utilisateur et guide d'intégration
-- Exemples d'utilisation
+- Ajout des champs obligatoires `fc` et `amountFc` par défaut dans les métadonnées de la requête de paiement
+- Ajout d'une section "Known Limitations" dans le README pour documenter les problèmes avec l'API MVola
+- Nouvel exemple `auth_example.py` qui démontre l'authentification qui fonctionne correctement
 
-### Changé
-- N/A (première version)
+### Modifié
+- Documentation améliorée sur les limitations de l'environnement sandbox MVola
+- Meilleure gestion des erreurs dans l'initiation de paiement (reconnaissance de `errorDescription` et `ErrorDescription`)
+- Les paramètres `foreign_currency` et `foreign_amount` ont désormais des valeurs par défaut (USD et 1)
 
 ### Corrigé
-- N/A (première version)
+- Format des en-têtes HTTP pour correspondre exactement à la documentation MVola
+
+## [1.2.0] - 2025-04-22
+
+### Ajouté
+- Support pour les callbacks (webhooks)
+- Nouveau module d'exceptions pour une meilleure gestion des erreurs
+- Documentation complète dans docs/
+- Exemples d'intégration dans examples/
+
+### Modifié
+- Amélioration de la gestion des tokens d'authentification
+- Refactoring pour une meilleure lisibilité et maintenance
+
+## [1.1.0] - 2025-02-15
+
+### Ajouté
+- Support pour la vérification du statut d'une transaction
+- Support pour les détails d'une transaction
+- Tests automatisés
+
+### Modifié
+- Améliorations de performance
+- Mise à jour des URLs d'API (https://devapi.mvola.mg)
+
+## [1.0.0] - 2025-01-10
+
+### Ajouté
+- Version initiale
+- Support pour l'authentification
+- Support pour l'initiation de paiement
+- Documentation de base
 
 ## [Non publié]
 

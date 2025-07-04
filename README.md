@@ -8,6 +8,12 @@ A robust Python library for integrating with MVola mobile payment API in Madagas
 pip install mvola-api-lib
 ```
 
+Pour utiliser les variables d'environnement (recommandé), installez également:
+
+```bash
+pip install python-dotenv
+```
+
 ## Documentation
 
 La documentation complète de l'API est disponible dans [docs/documentation.md](docs/documentation.md).
@@ -22,7 +28,56 @@ Pour consulter la documentation en ligne, visitez [https://niainarisoa01.github.
 - Comprehensive error handling
 - Logging support
 - Built-in parameter validation
-- Works with both sandbox (https://devapi.mvola.mg) and production (https://api.mvola.mg) environments
+- Works with both sandbox and production environments
+- Support for environment variables to securely store credentials
+
+## Variables d'environnement
+
+Pour une gestion sécurisée des identifiants API, utilisez les variables d'environnement:
+
+1. Créez un fichier `.env` à la racine de votre projet:
+
+```
+# MVola API credentials
+MVOLA_CONSUMER_KEY=votre_consumer_key
+MVOLA_CONSUMER_SECRET=votre_consumer_secret
+MVOLA_PARTNER_NAME=Nom de votre application
+MVOLA_PARTNER_MSISDN=0343500004
+MVOLA_SANDBOX=True
+```
+
+2. Chargez ces variables dans votre code:
+
+```python
+from mvola_api import MVolaClient
+from dotenv import load_dotenv
+
+# Charger les variables d'environnement
+load_dotenv()
+
+# Créer un client à partir des variables d'environnement
+client = MVolaClient.from_env()
+```
+
+## Known Limitations
+
+**API Sandbox Limitations**
+
+Lors des tests avec l'environnement sandbox MVola, nous avons identifié certaines limitations:
+
+1. **Erreur "Missing field" (code 4001)** : L'API sandbox peut retourner cette erreur même lorsque tous les champs obligatoires mentionnés dans la documentation sont présents dans la requête. Cette erreur est particulièrement fréquente lors de l'initiation de paiement.
+
+2. **Authentification vs. Transactions** : L'authentification (génération de token) fonctionne correctement, mais l'initiation de transaction peut échouer malgré la validité du token et la présence de tous les champs requis.
+
+3. **Champs fc et amountFc** : Ces champs de métadonnées sont requis selon la documentation (et ont été ajoutés à l'implémentation), mais leur présence ne garantit pas le succès de l'opération dans l'environnement sandbox.
+
+4. **Traitement des webhooks** : Le retour des callbacks peut ne pas fonctionner dans l'environnement sandbox comme décrit dans la documentation.
+
+**Solutions de contournement**
+
+- Pour les applications de production, nous recommandons de tester directement dans l'environnement de production (après validation préalable avec MVola).
+- Si vous ne pouvez pas tester en production, vérifiez que vous utilisez bien les numéros sandbox (0343500003 et 0343500004).
+- Vérifiez régulièrement si MVola a mis à jour son environnement sandbox.
 
 ## Quick Start
 
@@ -43,19 +98,27 @@ https://github.com/Niainarisoa01/Mvola_API_Lib
 
 from mvola_api import MVolaClient
 import time
+from dotenv import load_dotenv
 
 # ======================================================
 # 1. INITIALISATION DU CLIENT
 # ======================================================
-# Remplacez ces valeurs par vos propres credentials
-# Pour le mode production, utilisez l'URL de production
-client = MVolaClient(
-    consumer_key="your_consumer_key",  # Obtenu du portail développeur MVola
-    consumer_secret="your_consumer_secret",  # Obtenu du portail développeur MVola
-    partner_name="nom de votre entreprise",  # Nom de votre application/entreprise
-    partner_msisdn="0343500003",  # Votre numéro MVola
-    base_url="https://devapi.mvola.mg"  # URL pour l'environnement sandbox
-)
+
+# Méthode 1: Utilisation des variables d'environnement (recommandée)
+# Chargez le fichier .env contenant vos credentials
+load_dotenv()
+
+# Création du client à partir des variables d'environnement
+client = MVolaClient.from_env()
+
+# Méthode 2: Initialisation directe
+# client = MVolaClient(
+#    consumer_key="your_consumer_key",  # Obtenu du portail développeur MVola
+#    consumer_secret="your_consumer_secret",  # Obtenu du portail développeur MVola
+#    partner_name="nom de votre entreprise",  # Nom de votre application/entreprise
+#    partner_msisdn="0343500004",  # En sandbox, utilisez uniquement 0343500004
+#    sandbox=True  # True pour sandbox, False pour production
+# )
 
 # ======================================================
 # 2. AUTHENTIFICATION - GÉNÉRATION DE TOKEN
@@ -63,36 +126,33 @@ client = MVolaClient(
 # Un token est valide pendant 1 heure
 # La bibliothèque gère automatiquement le renouvellement
 token_data = client.generate_token()
-print(f"Token généré: {token_data['access_token'][:10]}...")
+print(f"Token généré: {token_data['access_token'][:10]}...")  # Ne jamais afficher le token complet
 
 # ======================================================
-# 3. INITIER UN PAIEMENT MARCHAND
+# 3. INITIER UN PAIEMENT
 # ======================================================
 # REMARQUE IMPORTANTE: Dans l'environnement sandbox MVola:
-# - Le débiteur (debit_msisdn) doit être le 0343500004
-# - Le créditeur (credit_msisdn) doit être le 0343500003
-# C'est l'inverse de ce qu'on pourrait attendre, mais c'est une spécificité de l'environnement de test
-result = client.initiate_merchant_payment(
+# - Utilisez uniquement 0343500003 et 0343500004
+result = client.initiate_payment(
     amount=1000,  # Montant en Ariary (minimum 100)
     currency="Ar",  # Devise (Ariary)
-    debit_msisdn="0343500004",  # Numéro du débiteur (celui qui paie)
-    credit_msisdn="0343500003",  # Numéro du créditeur (celui qui reçoit)
+    debit_msisdn="0343500003",  # Numéro du débiteur (celui qui paie)
+    credit_msisdn="0343500004",  # Numéro du créditeur (celui qui reçoit)
     description="Test Transaction",  # Description de la transaction (max 50 caractères)
-    requesting_organisation_transaction_reference="REF123456",  # Référence unique côté client
-    callback_url="https://example.com/callback"  # URL où MVola enverra des notifications (optionnel)
+    callback_url="https://example.com/callback"  # URL où MVola enverra des notifications (recommandé)
 )
 
 # ======================================================
 # 4. SUIVI DE LA TRANSACTION
 # ======================================================
 # L'ID de corrélation est nécessaire pour suivre l'état de la transaction
-server_correlation_id = result['serverCorrelationId']
+server_correlation_id = result['response']['serverCorrelationId']
 print(f"Transaction initiée avec l'ID de corrélation: {server_correlation_id}")
 
 # 4.1 Vérification initiale du statut
 print("\n=== Test de get_transaction_status (statut initial) ===")
 status_result = client.get_transaction_status(server_correlation_id)
-print(f"Statut de la transaction: {status_result['status']}")
+print(f"Statut de la transaction: {status_result['response']['status']}")
 
 # 4.2 Suivi automatique du statut - boucle de vérification
 # La transaction peut prendre du temps pour être traitée
@@ -100,7 +160,7 @@ print("\n=== Boucle de vérification du statut ===")
 max_attempts = 10  # Maximum d'essais
 waiting_time = 3   # Secondes entre chaque vérification
 current_attempt = 1
-transaction_status = status_result['status']
+transaction_status = status_result['response']['status']
 
 # La boucle continue jusqu'à ce que le statut change ou le nombre max de tentatives soit atteint
 while transaction_status == "pending" and current_attempt <= max_attempts:
@@ -110,7 +170,7 @@ while transaction_status == "pending" and current_attempt <= max_attempts:
     
     # Vérification périodique du statut
     status_result = client.get_transaction_status(server_correlation_id)
-    transaction_status = status_result['status']
+    transaction_status = status_result['response']['status']
     current_attempt += 1
 
 print(f"\nStatut final après {current_attempt-1} vérifications: {transaction_status}")
@@ -225,6 +285,55 @@ except MVolaTransactionError as e:
 except MVolaError as e:
     print(f"General MVola error: {e}")
 ```
+
+## Using Environment Variables
+
+You can use environment variables to store your MVola API credentials and configuration. This is a safer approach than hardcoding sensitive information in your code.
+
+### 1. Create a .env file
+
+Create a `.env` file in your project root with the following content:
+
+```
+# MVola API credentials
+MVOLA_CONSUMER_KEY=your_consumer_key_here
+MVOLA_CONSUMER_SECRET=your_consumer_secret_here
+
+# MVola API configuration
+MVOLA_PARTNER_NAME=Your Partner Name
+MVOLA_PARTNER_MSISDN=your_partner_msisdn_here
+
+# Environment (set to True for sandbox, False for production)
+MVOLA_SANDBOX=True
+```
+
+### 2. Use the client with environment variables
+
+```python
+from mvola_api import MVolaClient
+
+# Method 1: Load all settings from environment variables
+client = MVolaClient.from_env()
+
+# Method 2: Override specific settings
+client = MVolaClient(
+    # These will be loaded from environment variables if not provided
+    consumer_key=None,
+    consumer_secret=None,
+    # Override environment variables with specific values
+    partner_name="Custom Partner Name",
+    sandbox=False  # Use production environment
+)
+
+# Use the client as usual
+token_data = client.generate_token()
+```
+
+The library will automatically load the values from your `.env` file using python-dotenv.
+
+### 3. Example with environment variables
+
+See the complete example in [examples/env_example.py](examples/env_example.py).
 
 ## API Documentation
 

@@ -12,7 +12,8 @@ Cette documentation décrit l'intégration des services de paiement mobile MVola
 4. [API de paiement marchand](#paiement)
 5. [Codes d'erreur](#erreurs)
 6. [Environnement de test](#test)
-7. [Bonnes pratiques](#pratiques)
+7. [Utilisation des variables d'environnement](#environnement)
+8. [Bonnes pratiques](#pratiques)
 
 ## Portail
 
@@ -124,18 +125,18 @@ Notes:
 | Clé                   | Valeur                                |
 |-----------------------|--------------------------------------|
 | Authorization         | Bearer <ACCESS_TOKEN>                 |
-| Version               | 1.0                                   |
+| version               | 1.0                                   |
 | X-CorrelationID       | ID unique (ex: UUID)                  |
-| UserLanguage          | FR (Français) ou MG (Malgache)        |
+| UserLanguage          | MG (recommandé) ou FR                 |
 | UserAccountIdentifier | msisdn;{numéro} (ex: msisdn;0340017983) |
 | partnerName           | Nom de votre entreprise               |
 | Content-Type          | application/json                      |
-| Cache-Control         | no-cache                              |
+| Accept-Charset        | utf-8                                 |
 
 ### Initier une transaction (POST)
 
 En-têtes additionnels:
-- `X-Callback-URL`: URL pour notifications (optionnel)
+- `X-Callback-URL`: URL pour notifications (recommandé)
 
 Corps de la requête:
 ```json
@@ -143,11 +144,13 @@ Corps de la requête:
   "amount": "10000",  
   "currency": "Ar",  
   "descriptionText": "Paiement Marchand",  
-  "requestDate": "2023-10-05T14:30:00.000Z",  
+  "requestDate": "2023-10-05T14:30:00.000Z",
+  "requestingOrganisationTransactionReference": "ref12345",
+  "originalTransactionReference": "MVOLA_123",
   "debitParty": [{"key": "msisdn", "value": "0340017983"}],  
   "creditParty": [{"key": "msisdn", "value": "0340017984"}],  
   "metadata": [  
-    {"key": "partnerName", "value": "MonEntreprise"},  
+    {"key": "partnerName", "value": "0340017984"},  
     {"key": "fc", "value": "USD"},  
     {"key": "amountFc", "value": "10"}  
   ]  
@@ -248,39 +251,96 @@ Pour l'environnement Sandbox, utilisez uniquement:
 
 ### Test des transactions
 
-1. Dans le portail développeur MVola, section "TRY OUT":
-   - Sélectionnez votre application
-   - Générez une clé de test
+Procédure:
+1. Utilisez votre Consumer Key et Secret pour obtenir un token
+2. Initiez une transaction entre les numéros 0343500003 et 0343500004
+3. Le statut initial sera "pending"
+4. Pour simuler une approbation, utilisez le portail développeur
 
-2. Exécutez vos requêtes de test
+## Utilisation des variables d'environnement
 
-3. Approuvez les transactions en attente via "Transaction Approvals"
+### Configuration des variables d'environnement
+
+L'utilisation des variables d'environnement est fortement recommandée pour des raisons de sécurité. Cela évite d'exposer vos identifiants dans le code source.
+
+#### Étape 1 : Créer un fichier .env
+
+Créez un fichier `.env` à la racine de votre projet avec le contenu suivant:
+
+```
+# MVola API credentials
+MVOLA_CONSUMER_KEY=votre_consumer_key
+MVOLA_CONSUMER_SECRET=votre_consumer_secret
+
+# MVola API configuration
+MVOLA_PARTNER_NAME=Nom de votre application
+MVOLA_PARTNER_MSISDN=0343500004
+
+# Environment (True pour sandbox, False pour production)
+MVOLA_SANDBOX=True
+```
+
+#### Étape 2 : Installer python-dotenv
+
+```bash
+pip install python-dotenv
+```
+
+#### Étape 3 : Utiliser les variables d'environnement
+
+```python
+from mvola_api import MVolaClient
+from dotenv import load_dotenv
+
+# Charger les variables d'environnement depuis le fichier .env
+load_dotenv()
+
+# Créer un client MVola à partir des variables d'environnement
+client = MVolaClient.from_env()
+
+# Utiliser le client comme d'habitude
+token = client.generate_token()
+print(f"Token généré avec succès, expire dans {token['expires_in']} secondes")
+```
+
+### Variables d'environnement prises en charge
+
+| Variable | Description | Valeur par défaut |
+|----------|-------------|-----------------|
+| MVOLA_CONSUMER_KEY | Clé API (Consumer Key) | Aucune (obligatoire) |
+| MVOLA_CONSUMER_SECRET | Secret API (Consumer Secret) | Aucune (obligatoire) |
+| MVOLA_PARTNER_NAME | Nom de votre entreprise/application | Aucune (obligatoire) |
+| MVOLA_PARTNER_MSISDN | Numéro de téléphone MVola | 0343500004 pour sandbox |
+| MVOLA_SANDBOX | Mode sandbox (True) ou production (False) | True |
+
+### Bonnes pratiques de sécurité
+
+1. Ne jamais inclure le fichier `.env` dans votre système de contrôle de version (ajoutez-le à `.gitignore`)
+2. Créez un fichier `.env.example` comme modèle sans les vraies valeurs d'identifiants
+3. Utilisez des variables d'environnement différentes pour les environnements de développement, test et production
+4. Limitez l'accès aux fichiers `.env` contenant les identifiants de production
+5. Rotez régulièrement vos identifiants API, surtout en cas de suspicion de compromission
 
 ## Pratiques
 
-1. **Gestion des tokens**
-   - Stockez le token de manière sécurisée
-   - Intégrez un mécanisme de rafraîchissement automatique (avant expiration)
+### Sécurité
 
-2. **Validation des paramètres**
-   - Vérifiez les numéros de téléphone (format valide)
-   - Évitez les caractères spéciaux dans les descriptions
+1. Ne stockez jamais les clés API directement dans le code source.
+2. Utilisez des variables d'environnement ou un système de gestion des secrets.
+3. Renouvelez vos clés API régulièrement.
+4. Utilisez HTTPS pour toutes les communications.
 
-3. **Dates et formats**
-   - Format des dates: ISO 8601 (yyyy-MM-dd'T'HH:mm:ss.SSSZ)
-   - Utilisez UTC pour éviter les problèmes de fuseau horaire
+### Performance
 
-4. **Suivi des transactions**
-   - Conservez le serverCorrelationId pour suivre les statuts
-   - Implémentez un système de webhook pour les notifications
+1. Réutilisez le même token jusqu'à son expiration.
+2. Implémentez un système de rafraîchissement automatique du token.
+3. Ajoutez des mécanismes de retry en cas d'échec temporaire.
+4. Utilisez un système de cache pour éviter les requêtes répétitives.
 
-5. **Sécurité**
-   - Utilisez HTTPS pour toutes les communications
-   - Ne stockez jamais les credentials en clair
-   - Implémentez une rotation régulière des clés d'API
+### Intégration
 
----
-
-## Support et assistance
-
-Pour toute question technique, contactez MVola via le portail développeur ou à l'adresse support-api@mvola.mg. 
+1. Commencez par des tests complets en environnement sandbox.
+2. Implémentez une gestion d'erreur robuste.
+3. Prévoyez un système de journalisation détaillé.
+4. Tenez compte des délais de traitement des transactions.
+5. Configurez correctement les callbacks pour les notifications. 

@@ -28,7 +28,7 @@ MVola offre deux environnements distincts :
 
 ## Configuration de l'authentification
 
-### Initialisation directe
+### Méthode 1 : Initialisation directe
 
 ```python
 from mvola_api import MVolaClient
@@ -38,53 +38,90 @@ client = MVolaClient(
     consumer_key="votre_consumer_key",
     consumer_secret="votre_consumer_secret",
     partner_name="Nom de votre application",
-    partner_msisdn="0343500003",  # Votre numéro MVola
-    base_url="https://devapi.mvola.mg"  # URL pour l'environnement sandbox
+    partner_msisdn="0343500004",  # Votre numéro MVola (utiliser 0343500004 pour sandbox)
+    sandbox=True  # Utiliser l'environnement sandbox
 )
 
-# Ou pour la production
+# Pour la production
 client = MVolaClient(
     consumer_key="votre_consumer_key",
     consumer_secret="votre_consumer_secret",
     partner_name="Nom de votre application",
-    partner_msisdn="0343500003",  # Votre numéro MVola
-    base_url="https://api.mvola.mg"  # URL pour l'environnement de production
+    partner_msisdn="votre_numero_mvola",  # Votre vrai numéro MVola
+    sandbox=False  # Utiliser l'environnement de production
 )
 ```
 
-### Utilisation des variables d'environnement
+### Méthode 2 : Utilisation des variables d'environnement (Recommandée)
 
-Pour une meilleure sécurité, il est recommandé de stocker vos identifiants dans des variables d'environnement :
+Pour une meilleure sécurité, nous recommandons d'utiliser des variables d'environnement pour stocker vos identifiants.
+
+#### Étape 1 : Créer un fichier .env
 
 Créez un fichier `.env` à la racine de votre projet :
 
 ```
+# MVola API credentials
 MVOLA_CONSUMER_KEY=votre_consumer_key
 MVOLA_CONSUMER_SECRET=votre_consumer_secret
+
+# MVola API configuration
 MVOLA_PARTNER_NAME=Nom de votre application
-MVOLA_PARTNER_MSISDN=0343500003
-MVOLA_BASE_URL=https://devapi.mvola.mg
+MVOLA_PARTNER_MSISDN=0343500004
+
+# Environment (True pour sandbox, False pour production)
+MVOLA_SANDBOX=True
 ```
 
-Puis, dans votre code :
+#### Étape 2 : Utiliser MVolaClient.from_env()
 
 ```python
-import os
-from dotenv import load_dotenv
 from mvola_api import MVolaClient
+from dotenv import load_dotenv
 
 # Charger les variables d'environnement
 load_dotenv()
 
-# Initialisation avec les variables d'environnement
+# Initialisation complète à partir des variables d'environnement
+client = MVolaClient.from_env()
+
+# Le client est maintenant prêt à être utilisé
+token_data = client.generate_token()
+print(f"Token généré avec succès, expire dans {token_data['expires_in']} secondes")
+```
+
+#### Étape 3 (optionnelle) : Surcharger certaines variables d'environnement
+
+Vous pouvez également surcharger certaines variables d'environnement tout en utilisant les autres :
+
+```python
+from mvola_api import MVolaClient
+from dotenv import load_dotenv
+
+# Charger les variables d'environnement
+load_dotenv()
+
+# Utiliser les credentials des variables d'environnement mais personnaliser d'autres paramètres
 client = MVolaClient(
-    consumer_key=os.getenv("MVOLA_CONSUMER_KEY"),
-    consumer_secret=os.getenv("MVOLA_CONSUMER_SECRET"),
-    partner_name=os.getenv("MVOLA_PARTNER_NAME"),
-    partner_msisdn=os.getenv("MVOLA_PARTNER_MSISDN"),
-    base_url=os.getenv("MVOLA_BASE_URL")
+    # Ces valeurs seront chargées depuis les variables d'environnement
+    consumer_key=None,  # None indique d'utiliser la variable d'environnement
+    consumer_secret=None,  # None indique d'utiliser la variable d'environnement
+    
+    # Ces valeurs vont surcharger celles des variables d'environnement
+    partner_name="Nom personnalisé",
+    sandbox=False  # Forcer l'utilisation de l'environnement de production
 )
 ```
+
+### Variables d'environnement supportées
+
+| Variable d'environnement | Description | Valeur par défaut |
+|--------------------------|-------------|-----------------|
+| MVOLA_CONSUMER_KEY       | Votre Consumer Key obtenue du portail développeur | Aucune (obligatoire) |
+| MVOLA_CONSUMER_SECRET    | Votre Consumer Secret obtenue du portail développeur | Aucune (obligatoire) |
+| MVOLA_PARTNER_NAME       | Le nom de votre entreprise/application | Aucune (obligatoire) |
+| MVOLA_PARTNER_MSISDN     | Votre numéro MVola | 0343500004 pour sandbox |
+| MVOLA_SANDBOX            | "True" pour l'environnement sandbox, "False" pour la production | True |
 
 ## Processus d'authentification
 
@@ -123,19 +160,15 @@ Vous n'avez généralement pas besoin de manipuler les tokens directement.
 
 ```python
 # Le token est généré automatiquement lors de la première utilisation
-transaction_info = client.initiate_merchant_payment(...)
+transaction_info = client.initiate_payment(...)
 
-# Pour accéder manuellement au token (rarement nécessaire)
-token = client.auth.get_valid_token()
-print(f"Token: {token['access_token']}")
-print(f"Expire dans: {token['expires_in']} secondes")
-
-# Vérifier si un token est expiré
-is_expired = client.auth.is_token_expired()
-print(f"Token expiré: {is_expired}")
+# Pour générer manuellement un token
+token_data = client.generate_token()
+print(f"Token: {token_data['access_token'][:20]}...") # Ne jamais afficher le token complet
+print(f"Expire dans: {token_data['expires_in']} secondes")
 
 # Forcer le rafraîchissement du token
-client.auth.refresh_token()
+token_data = client.generate_token(force_refresh=True)
 ```
 
 ## Gestion des erreurs d'authentification
@@ -143,23 +176,25 @@ client.auth.refresh_token()
 Les erreurs d'authentification sont gérées par des exceptions spécifiques :
 
 ```python
-from mvola_api.exceptions import MVolaAuthError, MVolaInvalidCredentialsError
+from mvola_api import MVolaClient
+from mvola_api.exceptions import MVolaAuthError, MVolaError
 
 try:
+    client = MVolaClient.from_env()
+    
     # Une opération qui nécessite une authentification
-    client.initiate_merchant_payment(
-        amount=1000,
+    client.initiate_payment(
+        amount="1000",
         debit_msisdn="0343500003",
         credit_msisdn="0343500004",
-        requesting_organisation_transaction_reference="REF123456",
         description="Paiement test"
     )
-except MVolaInvalidCredentialsError as e:
-    print(f"Identifiants API invalides: {e}")
-    # Vérifiez vos consumer_key et consumer_secret
 except MVolaAuthError as e:
     print(f"Erreur d'authentification: {e}")
-    # Gérer les autres erreurs d'authentification
+    # Vérifiez vos consumer_key et consumer_secret
+except MVolaError as e:
+    print(f"Erreur MVola: {e}")
+    # Gérer les autres erreurs
 ```
 
 ## Codes d'erreur HTTP
@@ -180,11 +215,12 @@ L'API MVola utilise les codes d'erreur HTTP standard pour indiquer le résultat 
 
 ## Bonnes pratiques de sécurité
 
-1. **Ne stockez jamais les identifiants API dans le code source** - Utilisez des variables d'environnement ou un service de gestion de secrets
-2. **Ne partagez jamais vos identifiants API** - Chaque application doit avoir ses propres identifiants
-3. **Utilisez HTTPS pour toutes les communications** - La bibliothèque MVola API le fait automatiquement
-4. **Implémentez un système de rotation des identifiants** pour les applications de production
-5. **Journalisez les tentatives d'authentification échouées** pour détecter les abus potentiels
+1. **Utilisez des variables d'environnement** - Préférez `MVolaClient.from_env()` plutôt que les identifiants en dur
+2. **Créez un fichier `.env.example`** - Fournissez un modèle sans les vraies credentials
+3. **Ajoutez `.env` à votre .gitignore** - Pour éviter que vos credentials ne soient versionnées
+4. **Ne partagez jamais vos identifiants API** - Chaque application doit avoir ses propres identifiants
+5. **Utilisez HTTPS pour toutes les communications** - La bibliothèque MVola API le fait automatiquement
+6. **Journalisez les tentatives d'authentification échouées** pour détecter les abus potentiels
 
 ## Passage en production
 
@@ -192,9 +228,9 @@ Lorsque vous êtes prêt à passer en production :
 
 1. Suivez le processus "GO LIVE" sur le portail développeur MVola
 2. Obtenez des identifiants API de production auprès de MVola
-3. Mettez à jour votre configuration pour utiliser l'URL de production `https://api.mvola.mg`
-4. Assurez-vous que votre application respecte toutes les exigences de sécurité
-5. Effectuez des tests de bout en bout avec des montants minimes avant de manipuler des transactions plus importantes
+3. Mettez à jour votre fichier `.env` avec les identifiants de production
+4. Définissez `MVOLA_SANDBOX=False` dans votre `.env` ou utilisez `sandbox=False` dans le constructeur
+5. Effectuez des tests avec des montants minimes avant de manipuler des transactions plus importantes
 
 ## Prochaines étapes
 

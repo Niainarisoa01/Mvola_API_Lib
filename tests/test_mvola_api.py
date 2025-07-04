@@ -21,8 +21,8 @@ class TestMVolaAuth(unittest.TestCase):
     
     def setUp(self):
         """Set up test environment"""
-        self.consumer_key = "test_key"
-        self.consumer_secret = "test_secret"
+        self.consumer_key = "***REDACTED_KEY***"
+        self.consumer_secret = "***REDACTED_SECRET***"
         self.base_url = "https://example.com"
         self.auth = MVolaAuth(self.consumer_key, self.consumer_secret, self.base_url)
     
