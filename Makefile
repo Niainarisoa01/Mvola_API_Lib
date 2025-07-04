@@ -1,4 +1,4 @@
-.PHONY: docs docs-pdf docs-deploy docs-all clean
+.PHONY: docs docs-pdf docs-deploy docs-all clean build dist publish publish-test deploy-all
 
 # Génération de documentation
 docs:
@@ -17,6 +17,9 @@ docs-all:
 clean:
 	rm -rf site/
 	rm -rf docs/output/
+	rm -rf dist/
+	rm -rf build/
+	rm -rf *.egg-info/
 
 # Installation des dépendances de développement
 install-dev:
@@ -26,6 +29,27 @@ install-dev:
 # Tests
 test:
 	pytest
+
+# Construction du package
+build:
+	python -m pip install --upgrade build
+	python -m build
+
+# Distribution du package
+dist: clean build
+
+# Publication sur PyPI
+publish:
+	python -m pip install --upgrade twine
+	python -m twine upload dist/*
+
+# Publication sur TestPyPI
+publish-test:
+	python -m pip install --upgrade twine
+	python -m twine upload --repository testpypi dist/*
+
+# Déploiement complet (documentation et package)
+deploy-all: docs-deploy dist publish
 
 # Lancement du serveur de documentation en mode développement
 serve:
