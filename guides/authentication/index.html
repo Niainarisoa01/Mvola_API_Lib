@@ -669,18 +669,60 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#initialisation-directe" class="md-nav__link">
+  <a href="#methode-1-initialisation-directe" class="md-nav__link">
     <span class="md-ellipsis">
-      Initialisation directe
+      Méthode 1 : Initialisation directe
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#utilisation-des-variables-denvironnement" class="md-nav__link">
+  <a href="#methode-2-utilisation-des-variables-denvironnement-recommandee" class="md-nav__link">
     <span class="md-ellipsis">
-      Utilisation des variables d'environnement
+      Méthode 2 : Utilisation des variables d'environnement (Recommandée)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Méthode 2 : Utilisation des variables d&#39;environnement (Recommandée)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#etape-1-creer-un-fichier-env" class="md-nav__link">
+    <span class="md-ellipsis">
+      Étape 1 : Créer un fichier .env
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#etape-2-utiliser-mvolaclientfrom_env" class="md-nav__link">
+    <span class="md-ellipsis">
+      Étape 2 : Utiliser MVolaClient.from_env()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#etape-3-optionnelle-surcharger-certaines-variables-denvironnement" class="md-nav__link">
+    <span class="md-ellipsis">
+      Étape 3 (optionnelle) : Surcharger certaines variables d'environnement
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#variables-denvironnement-supportees" class="md-nav__link">
+    <span class="md-ellipsis">
+      Variables d'environnement supportées
     </span>
   </a>
   
@@ -1311,18 +1353,60 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#initialisation-directe" class="md-nav__link">
+  <a href="#methode-1-initialisation-directe" class="md-nav__link">
     <span class="md-ellipsis">
-      Initialisation directe
+      Méthode 1 : Initialisation directe
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#utilisation-des-variables-denvironnement" class="md-nav__link">
+  <a href="#methode-2-utilisation-des-variables-denvironnement-recommandee" class="md-nav__link">
     <span class="md-ellipsis">
-      Utilisation des variables d'environnement
+      Méthode 2 : Utilisation des variables d'environnement (Recommandée)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Méthode 2 : Utilisation des variables d&#39;environnement (Recommandée)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#etape-1-creer-un-fichier-env" class="md-nav__link">
+    <span class="md-ellipsis">
+      Étape 1 : Créer un fichier .env
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#etape-2-utiliser-mvolaclientfrom_env" class="md-nav__link">
+    <span class="md-ellipsis">
+      Étape 2 : Utiliser MVolaClient.from_env()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#etape-3-optionnelle-surcharger-certaines-variables-denvironnement" class="md-nav__link">
+    <span class="md-ellipsis">
+      Étape 3 (optionnelle) : Surcharger certaines variables d'environnement
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#variables-denvironnement-supportees" class="md-nav__link">
+    <span class="md-ellipsis">
+      Variables d'environnement supportées
     </span>
   </a>
   
@@ -1487,7 +1571,7 @@
 </tbody>
 </table>
 <h2 id="configuration-de-lauthentification">Configuration de l'authentification<a class="headerlink" href="#configuration-de-lauthentification" title="Permanent link">&para;</a></h2>
-<h3 id="initialisation-directe">Initialisation directe<a class="headerlink" href="#initialisation-directe" title="Permanent link">&para;</a></h3>
+<h3 id="methode-1-initialisation-directe">Méthode 1 : Initialisation directe<a class="headerlink" href="#methode-1-initialisation-directe" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">mvola_api</span><span class="w"> </span><span class="kn">import</span> <span class="n">MVolaClient</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="c1"># Initialisation pour l&#39;environnement sandbox</span>
@@ -1495,45 +1579,104 @@
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">consumer_key</span><span class="o">=</span><span class="s2">&quot;votre_consumer_key&quot;</span><span class="p">,</span>
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="n">consumer_secret</span><span class="o">=</span><span class="s2">&quot;votre_consumer_secret&quot;</span><span class="p">,</span>
 <a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">partner_name</span><span class="o">=</span><span class="s2">&quot;Nom de votre application&quot;</span><span class="p">,</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="n">partner_msisdn</span><span class="o">=</span><span class="s2">&quot;0343500003&quot;</span><span class="p">,</span>  <span class="c1"># Votre numéro MVola</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="n">base_url</span><span class="o">=</span><span class="s2">&quot;https://devapi.mvola.mg&quot;</span>  <span class="c1"># URL pour l&#39;environnement sandbox</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="n">partner_msisdn</span><span class="o">=</span><span class="s2">&quot;0343500004&quot;</span><span class="p">,</span>  <span class="c1"># Votre numéro MVola (utiliser 0343500004 pour sandbox)</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="n">sandbox</span><span class="o">=</span><span class="kc">True</span>  <span class="c1"># Utiliser l&#39;environnement sandbox</span>
 <a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="p">)</span>
 <a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="c1"># Ou pour la production</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="c1"># Pour la production</span>
 <a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="n">client</span> <span class="o">=</span> <span class="n">MVolaClient</span><span class="p">(</span>
 <a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>    <span class="n">consumer_key</span><span class="o">=</span><span class="s2">&quot;votre_consumer_key&quot;</span><span class="p">,</span>
 <a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>    <span class="n">consumer_secret</span><span class="o">=</span><span class="s2">&quot;votre_consumer_secret&quot;</span><span class="p">,</span>
 <a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>    <span class="n">partner_name</span><span class="o">=</span><span class="s2">&quot;Nom de votre application&quot;</span><span class="p">,</span>
-<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>    <span class="n">partner_msisdn</span><span class="o">=</span><span class="s2">&quot;0343500003&quot;</span><span class="p">,</span>  <span class="c1"># Votre numéro MVola</span>
-<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>    <span class="n">base_url</span><span class="o">=</span><span class="s2">&quot;https://api.mvola.mg&quot;</span>  <span class="c1"># URL pour l&#39;environnement de production</span>
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>    <span class="n">partner_msisdn</span><span class="o">=</span><span class="s2">&quot;votre_numero_mvola&quot;</span><span class="p">,</span>  <span class="c1"># Votre vrai numéro MVola</span>
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>    <span class="n">sandbox</span><span class="o">=</span><span class="kc">False</span>  <span class="c1"># Utiliser l&#39;environnement de production</span>
 <a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="p">)</span>
 </code></pre></div>
-<h3 id="utilisation-des-variables-denvironnement">Utilisation des variables d'environnement<a class="headerlink" href="#utilisation-des-variables-denvironnement" title="Permanent link">&para;</a></h3>
-<p>Pour une meilleure sécurité, il est recommandé de stocker vos identifiants dans des variables d'environnement :</p>
+<h3 id="methode-2-utilisation-des-variables-denvironnement-recommandee">Méthode 2 : Utilisation des variables d'environnement (Recommandée)<a class="headerlink" href="#methode-2-utilisation-des-variables-denvironnement-recommandee" title="Permanent link">&para;</a></h3>
+<p>Pour une meilleure sécurité, nous recommandons d'utiliser des variables d'environnement pour stocker vos identifiants.</p>
+<h4 id="etape-1-creer-un-fichier-env">Étape 1 : Créer un fichier .env<a class="headerlink" href="#etape-1-creer-un-fichier-env" title="Permanent link">&para;</a></h4>
 <p>Créez un fichier <code>.env</code> à la racine de votre projet :</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>MVOLA_CONSUMER_KEY=votre_consumer_key
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>MVOLA_CONSUMER_SECRET=votre_consumer_secret
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>MVOLA_PARTNER_NAME=Nom de votre application
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>MVOLA_PARTNER_MSISDN=0343500003
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>MVOLA_BASE_URL=https://devapi.mvola.mg
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a># MVola API credentials
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>MVOLA_CONSUMER_KEY=votre_consumer_key
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>MVOLA_CONSUMER_SECRET=votre_consumer_secret
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a># MVola API configuration
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>MVOLA_PARTNER_NAME=Nom de votre application
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>MVOLA_PARTNER_MSISDN=0343500004
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a># Environment (True pour sandbox, False pour production)
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>MVOLA_SANDBOX=True
 </code></pre></div>
-<p>Puis, dans votre code :</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<h4 id="etape-2-utiliser-mvolaclientfrom_env">Étape 2 : Utiliser MVolaClient.from_env()<a class="headerlink" href="#etape-2-utiliser-mvolaclientfrom_env" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">mvola_api</span><span class="w"> </span><span class="kn">import</span> <span class="n">MVolaClient</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">dotenv</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_dotenv</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">mvola_api</span><span class="w"> </span><span class="kn">import</span> <span class="n">MVolaClient</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="c1"># Charger les variables d&#39;environnement</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="n">load_dotenv</span><span class="p">()</span>
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="c1"># Initialisation avec les variables d&#39;environnement</span>
-<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="n">client</span> <span class="o">=</span> <span class="n">MVolaClient</span><span class="p">(</span>
-<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>    <span class="n">consumer_key</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;MVOLA_CONSUMER_KEY&quot;</span><span class="p">),</span>
-<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>    <span class="n">consumer_secret</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;MVOLA_CONSUMER_SECRET&quot;</span><span class="p">),</span>
-<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>    <span class="n">partner_name</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;MVOLA_PARTNER_NAME&quot;</span><span class="p">),</span>
-<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>    <span class="n">partner_msisdn</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;MVOLA_PARTNER_MSISDN&quot;</span><span class="p">),</span>
-<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>    <span class="n">base_url</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;MVOLA_BASE_URL&quot;</span><span class="p">)</span>
-<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="p">)</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="c1"># Charger les variables d&#39;environnement</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="n">load_dotenv</span><span class="p">()</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="c1"># Initialisation complète à partir des variables d&#39;environnement</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="n">client</span> <span class="o">=</span> <span class="n">MVolaClient</span><span class="o">.</span><span class="n">from_env</span><span class="p">()</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="c1"># Le client est maintenant prêt à être utilisé</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="n">token_data</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">generate_token</span><span class="p">()</span>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Token généré avec succès, expire dans </span><span class="si">{</span><span class="n">token_data</span><span class="p">[</span><span class="s1">&#39;expires_in&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> secondes&quot;</span><span class="p">)</span>
 </code></pre></div>
+<h4 id="etape-3-optionnelle-surcharger-certaines-variables-denvironnement">Étape 3 (optionnelle) : Surcharger certaines variables d'environnement<a class="headerlink" href="#etape-3-optionnelle-surcharger-certaines-variables-denvironnement" title="Permanent link">&para;</a></h4>
+<p>Vous pouvez également surcharger certaines variables d'environnement tout en utilisant les autres :</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">mvola_api</span><span class="w"> </span><span class="kn">import</span> <span class="n">MVolaClient</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">dotenv</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_dotenv</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="c1"># Charger les variables d&#39;environnement</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="n">load_dotenv</span><span class="p">()</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="c1"># Utiliser les credentials des variables d&#39;environnement mais personnaliser d&#39;autres paramètres</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="n">client</span> <span class="o">=</span> <span class="n">MVolaClient</span><span class="p">(</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>    <span class="c1"># Ces valeurs seront chargées depuis les variables d&#39;environnement</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>    <span class="n">consumer_key</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># None indique d&#39;utiliser la variable d&#39;environnement</span>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>    <span class="n">consumer_secret</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># None indique d&#39;utiliser la variable d&#39;environnement</span>
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>    <span class="c1"># Ces valeurs vont surcharger celles des variables d&#39;environnement</span>
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>    <span class="n">partner_name</span><span class="o">=</span><span class="s2">&quot;Nom personnalisé&quot;</span><span class="p">,</span>
+<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>    <span class="n">sandbox</span><span class="o">=</span><span class="kc">False</span>  <span class="c1"># Forcer l&#39;utilisation de l&#39;environnement de production</span>
+<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a><span class="p">)</span>
+</code></pre></div>
+<h3 id="variables-denvironnement-supportees">Variables d'environnement supportées<a class="headerlink" href="#variables-denvironnement-supportees" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable d'environnement</th>
+<th>Description</th>
+<th>Valeur par défaut</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MVOLA_CONSUMER_KEY</td>
+<td>Votre Consumer Key obtenue du portail développeur</td>
+<td>Aucune (obligatoire)</td>
+</tr>
+<tr>
+<td>MVOLA_CONSUMER_SECRET</td>
+<td>Votre Consumer Secret obtenue du portail développeur</td>
+<td>Aucune (obligatoire)</td>
+</tr>
+<tr>
+<td>MVOLA_PARTNER_NAME</td>
+<td>Le nom de votre entreprise/application</td>
+<td>Aucune (obligatoire)</td>
+</tr>
+<tr>
+<td>MVOLA_PARTNER_MSISDN</td>
+<td>Votre numéro MVola</td>
+<td>0343500004 pour sandbox</td>
+</tr>
+<tr>
+<td>MVOLA_SANDBOX</td>
+<td>"True" pour l'environnement sandbox, "False" pour la production</td>
+<td>True</td>
+</tr>
+</tbody>
+</table>
 <h2 id="processus-dauthentification">Processus d'authentification<a class="headerlink" href="#processus-dauthentification" title="Permanent link">&para;</a></h2>
 <p>L'authentification MVola utilise le protocole OAuth 2.0 avec le flux <code>client_credentials</code> et le scope <code>EXT_INT_MVOLA_SCOPE</code>. Voici comment cela fonctionne :</p>
 <ol>
@@ -1544,12 +1687,12 @@
 </li>
 <li>
 <p>Le serveur MVola répond avec un token d'accès :
-   <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="p">{</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="nt">&quot;access_token&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;ACCESS_TOKEN&gt;&quot;</span><span class="p">,</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="nt">&quot;scope&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;EXT_INT_MVOLA_SCOPE&quot;</span><span class="p">,</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">  </span><span class="nt">&quot;token_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Bearer&quot;</span><span class="p">,</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">  </span><span class="nt">&quot;expires_in&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3600</span>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="p">}</span>
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="p">{</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="nt">&quot;access_token&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;ACCESS_TOKEN&gt;&quot;</span><span class="p">,</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span><span class="nt">&quot;scope&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;EXT_INT_MVOLA_SCOPE&quot;</span><span class="p">,</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">  </span><span class="nt">&quot;token_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Bearer&quot;</span><span class="p">,</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">  </span><span class="nt">&quot;expires_in&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3600</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="p">}</span>
 </code></pre></div></p>
 </li>
 <li>
@@ -1567,40 +1710,38 @@
 </ol>
 <p>Vous n'avez généralement pas besoin de manipuler les tokens directement.</p>
 <h3 id="cycle-de-vie-des-tokens">Cycle de vie des tokens<a class="headerlink" href="#cycle-de-vie-des-tokens" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># Le token est généré automatiquement lors de la première utilisation</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="n">transaction_info</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">initiate_merchant_payment</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="c1"># Pour accéder manuellement au token (rarement nécessaire)</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="n">token</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">auth</span><span class="o">.</span><span class="n">get_valid_token</span><span class="p">()</span>
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Token: </span><span class="si">{</span><span class="n">token</span><span class="p">[</span><span class="s1">&#39;access_token&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Expire dans: </span><span class="si">{</span><span class="n">token</span><span class="p">[</span><span class="s1">&#39;expires_in&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> secondes&quot;</span><span class="p">)</span>
-<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>
-<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="c1"># Vérifier si un token est expiré</span>
-<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="n">is_expired</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">auth</span><span class="o">.</span><span class="n">is_token_expired</span><span class="p">()</span>
-<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Token expiré: </span><span class="si">{</span><span class="n">is_expired</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>
-<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="c1"># Forcer le rafraîchissement du token</span>
-<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="n">client</span><span class="o">.</span><span class="n">auth</span><span class="o">.</span><span class="n">refresh_token</span><span class="p">()</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># Le token est généré automatiquement lors de la première utilisation</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="n">transaction_info</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">initiate_payment</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="c1"># Pour générer manuellement un token</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="n">token_data</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">generate_token</span><span class="p">()</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Token: </span><span class="si">{</span><span class="n">token_data</span><span class="p">[</span><span class="s1">&#39;access_token&#39;</span><span class="p">][:</span><span class="mi">20</span><span class="p">]</span><span class="si">}</span><span class="s2">...&quot;</span><span class="p">)</span> <span class="c1"># Ne jamais afficher le token complet</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Expire dans: </span><span class="si">{</span><span class="n">token_data</span><span class="p">[</span><span class="s1">&#39;expires_in&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> secondes&quot;</span><span class="p">)</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="c1"># Forcer le rafraîchissement du token</span>
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="n">token_data</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">generate_token</span><span class="p">(</span><span class="n">force_refresh</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </code></pre></div>
 <h2 id="gestion-des-erreurs-dauthentification">Gestion des erreurs d'authentification<a class="headerlink" href="#gestion-des-erreurs-dauthentification" title="Permanent link">&para;</a></h2>
 <p>Les erreurs d'authentification sont gérées par des exceptions spécifiques :</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">mvola_api.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">MVolaAuthError</span><span class="p">,</span> <span class="n">MVolaInvalidCredentialsError</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="k">try</span><span class="p">:</span>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    <span class="c1"># Une opération qui nécessite une authentification</span>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    <span class="n">client</span><span class="o">.</span><span class="n">initiate_merchant_payment</span><span class="p">(</span>
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>        <span class="n">amount</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>        <span class="n">debit_msisdn</span><span class="o">=</span><span class="s2">&quot;0343500003&quot;</span><span class="p">,</span>
-<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>        <span class="n">credit_msisdn</span><span class="o">=</span><span class="s2">&quot;0343500004&quot;</span><span class="p">,</span>
-<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>        <span class="n">requesting_organisation_transaction_reference</span><span class="o">=</span><span class="s2">&quot;REF123456&quot;</span><span class="p">,</span>
-<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Paiement test&quot;</span>
-<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>    <span class="p">)</span>
-<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="k">except</span> <span class="n">MVolaInvalidCredentialsError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Identifiants API invalides: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>    <span class="c1"># Vérifiez vos consumer_key et consumer_secret</span>
-<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="k">except</span> <span class="n">MVolaAuthError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Erreur d&#39;authentification: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a>    <span class="c1"># Gérer les autres erreurs d&#39;authentification</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">mvola_api</span><span class="w"> </span><span class="kn">import</span> <span class="n">MVolaClient</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">mvola_api.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">MVolaAuthError</span><span class="p">,</span> <span class="n">MVolaError</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="k">try</span><span class="p">:</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>    <span class="n">client</span> <span class="o">=</span> <span class="n">MVolaClient</span><span class="o">.</span><span class="n">from_env</span><span class="p">()</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>    <span class="c1"># Une opération qui nécessite une authentification</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>    <span class="n">client</span><span class="o">.</span><span class="n">initiate_payment</span><span class="p">(</span>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>        <span class="n">amount</span><span class="o">=</span><span class="s2">&quot;1000&quot;</span><span class="p">,</span>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>        <span class="n">debit_msisdn</span><span class="o">=</span><span class="s2">&quot;0343500003&quot;</span><span class="p">,</span>
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>        <span class="n">credit_msisdn</span><span class="o">=</span><span class="s2">&quot;0343500004&quot;</span><span class="p">,</span>
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Paiement test&quot;</span>
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a>    <span class="p">)</span>
+<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a><span class="k">except</span> <span class="n">MVolaAuthError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Erreur d&#39;authentification: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a>    <span class="c1"># Vérifiez vos consumer_key et consumer_secret</span>
+<a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a><span class="k">except</span> <span class="n">MVolaError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+<a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Erreur MVola: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a>    <span class="c1"># Gérer les autres erreurs</span>
 </code></pre></div>
 <h2 id="codes-derreur-http">Codes d'erreur HTTP<a class="headerlink" href="#codes-derreur-http" title="Permanent link">&para;</a></h2>
 <p>L'API MVola utilise les codes d'erreur HTTP standard pour indiquer le résultat des requêtes d'authentification :</p>
@@ -1652,10 +1793,11 @@
 </table>
 <h2 id="bonnes-pratiques-de-securite">Bonnes pratiques de sécurité<a class="headerlink" href="#bonnes-pratiques-de-securite" title="Permanent link">&para;</a></h2>
 <ol>
-<li><strong>Ne stockez jamais les identifiants API dans le code source</strong> - Utilisez des variables d'environnement ou un service de gestion de secrets</li>
+<li><strong>Utilisez des variables d'environnement</strong> - Préférez <code>MVolaClient.from_env()</code> plutôt que les identifiants en dur</li>
+<li><strong>Créez un fichier <code>.env.example</code></strong> - Fournissez un modèle sans les vraies credentials</li>
+<li><strong>Ajoutez <code>.env</code> à votre .gitignore</strong> - Pour éviter que vos credentials ne soient versionnées</li>
 <li><strong>Ne partagez jamais vos identifiants API</strong> - Chaque application doit avoir ses propres identifiants</li>
 <li><strong>Utilisez HTTPS pour toutes les communications</strong> - La bibliothèque MVola API le fait automatiquement</li>
-<li><strong>Implémentez un système de rotation des identifiants</strong> pour les applications de production</li>
 <li><strong>Journalisez les tentatives d'authentification échouées</strong> pour détecter les abus potentiels</li>
 </ol>
 <h2 id="passage-en-production">Passage en production<a class="headerlink" href="#passage-en-production" title="Permanent link">&para;</a></h2>
@@ -1663,9 +1805,9 @@
 <ol>
 <li>Suivez le processus "GO LIVE" sur le portail développeur MVola</li>
 <li>Obtenez des identifiants API de production auprès de MVola</li>
-<li>Mettez à jour votre configuration pour utiliser l'URL de production <code>https://api.mvola.mg</code></li>
-<li>Assurez-vous que votre application respecte toutes les exigences de sécurité</li>
-<li>Effectuez des tests de bout en bout avec des montants minimes avant de manipuler des transactions plus importantes</li>
+<li>Mettez à jour votre fichier <code>.env</code> avec les identifiants de production</li>
+<li>Définissez <code>MVOLA_SANDBOX=False</code> dans votre <code>.env</code> ou utilisez <code>sandbox=False</code> dans le constructeur</li>
+<li>Effectuez des tests avec des montants minimes avant de manipuler des transactions plus importantes</li>
 </ol>
 <h2 id="prochaines-etapes">Prochaines étapes<a class="headerlink" href="#prochaines-etapes" title="Permanent link">&para;</a></h2>
 <p>Une fois l'authentification configurée, vous pouvez commencer à effectuer des transactions. Consultez le <a href="../transactions/">Guide des transactions</a> pour apprendre à initier des paiements et à vérifier leur statut. </p>
