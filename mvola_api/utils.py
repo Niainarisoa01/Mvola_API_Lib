@@ -34,6 +34,23 @@ def generate_uuid():
     return str(uuid.uuid4())
 
 
+def generate_correlation_id():
+    """
+    Generate a correlation ID for MVola API
+
+    For testing with a specific backend, you may need to use a fixed ID like "123"
+    instead of a random UUID. Uncomment the fixed ID line for such cases.
+
+    Returns:
+        str: Correlation ID
+    """
+    # For production, use a random UUID
+    return str(uuid.uuid4())
+    
+    # For testing with specific backends, you might need a fixed ID
+    # return "123"
+
+
 def get_formatted_datetime():
     """
     Get current datetime in ISO 8601 format as required by MVola API
@@ -56,6 +73,42 @@ def get_formatted_datetime():
             )[:-3]
             + "Z"
         )
+
+
+def get_mvola_headers(access_token, correlation_id, user_language="MG", callback_url=None, partner_msisdn=None, partner_name=None):
+    """
+    Get standard headers for MVola API requests based on working example format
+    
+    Args:
+        access_token (str): OAuth2 access token
+        correlation_id (str): Correlation ID
+        user_language (str, optional): User language, default is "MG"
+        callback_url (str, optional): Callback URL for notifications
+        partner_msisdn (str, optional): Partner MSISDN
+        partner_name (str, optional): Partner name
+        
+    Returns:
+        dict: Headers for API request
+    """
+    headers = {
+        "version": "1.0",
+        "X-CorrelationID": correlation_id,
+        "UserLanguage": user_language,
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {access_token}",
+        "Accept-Charset": "utf-8",
+    }
+    
+    if callback_url:
+        headers["X-Callback-URL"] = callback_url
+        
+    if partner_msisdn:
+        headers["UserAccountIdentifier"] = f"msisdn;{partner_msisdn}"
+        
+    if partner_name:
+        headers["partnerName"] = partner_name
+        
+    return headers
 
 
 def validate_msisdn(msisdn):

@@ -17,11 +17,20 @@ from .constants import (
     TRANSACTION_STATUS_ENDPOINT,
 )
 from .exceptions import MVolaTransactionError, MVolaValidationError
+from .utils import get_mvola_headers
 
 
 class MVolaTransaction:
     """
     Class for managing MVola transactions
+    
+    Note: L'API MVola présente certaines limitations connues :
+    - L'environnement sandbox retourne parfois l'erreur "Missing field" (code 4001) même lorsque tous
+      les champs obligatoires mentionnés dans la documentation sont inclus.
+    - L'authentification fonctionne correctement, mais l'initiation de paiement peut échouer avec 
+      cette erreur malgré la présence des champs requis.
+    - Les champs fc et amountFc doivent être inclus dans les métadonnées comme indiqué dans la 
+      documentation, mais cela peut ne pas être suffisant dans l'environnement sandbox.
     """
 
     def __init__(self, auth, base_url, partner_name, partner_msisdn=None):
@@ -117,7 +126,8 @@ class MVolaTransaction:
             raise MVolaValidationError(message="; ".join(errors))
 
     def _get_headers(
-        self, correlation_id=None, user_language=DEFAULT_LANGUAGE, callback_url=None
+        self, correlation_id=None, user_language=DEFAULT_LANGUAGE, callback_url=None,
+        cell_id_a=None, geo_location_a=None, cell_id_b=None, geo_location_b=None
     ):
         """
         Get standard headers for API requests
@@ -126,6 +136,10 @@ class MVolaTransaction:
             correlation_id (str, optional): Correlation ID
             user_language (str, optional): User language (FR or MG)
             callback_url (str, optional): Callback URL for notifications
+            cell_id_a (str, optional): Cell ID A
+            geo_location_a (str, optional): Geo Location A
+            cell_id_b (str, optional): Cell ID B
+            geo_location_b (str, optional): Geo Location B
 
         Returns:
             dict: Headers for API request
@@ -140,19 +154,28 @@ class MVolaTransaction:
                 message="Partner MSISDN is required for transaction requests"
             )
 
-        headers = {
-            "Authorization": f"Bearer {access_token}",
-            "Version": API_VERSION,
-            "X-CorrelationID": correlation_id,
-            "UserLanguage": user_language,
-            "UserAccountIdentifier": f"msisdn;{self.partner_msisdn}",
-            "partnerName": self.partner_name,
-            "Content-Type": "application/json",
-            "Cache-Control": "no-cache",
-        }
-
-        if callback_url:
-            headers["X-Callback-URL"] = callback_url
+        # Use the utility function to get the headers
+        headers = get_mvola_headers(
+            access_token=access_token,
+            correlation_id=correlation_id,
+            user_language=user_language,
+            callback_url=callback_url,
+            partner_msisdn=self.partner_msisdn,
+            partner_name=self.partner_name
+        )
+        
+        # Add additional headers if provided
+        if cell_id_a:
+            headers["CellIdA"] = cell_id_a
+            
+        if geo_location_a:
+            headers["GeoLocationA"] = geo_location_a
+            
+        if cell_id_b:
+            headers["CellIdB"] = cell_id_b
+            
+        if geo_location_b:
+            headers["GeoLocationB"] = geo_location_b
 
         return headers
 
@@ -163,16 +186,24 @@ class MVolaTransaction:
         credit_msisdn,
         description,
         currency=DEFAULT_CURRENCY,
-        foreign_currency=None,
-        foreign_amount=None,
+        foreign_currency="USD",  # Défini par défaut à USD comme dans la documentation
+        foreign_amount="1",      # Défini par défaut à 1 comme dans la documentation
         correlation_id=None,
-        user_language=DEFAULT_LANGUAGE,
+        user_language="MG",      # Default to MG as in working example
         callback_url=None,
         requesting_organisation_transaction_reference="",
         original_transaction_reference="",
+        cell_id_a=None,
+        geo_location_a=None,
+        cell_id_b=None,
+        geo_location_b=None,
     ):
         """
         Initiate a merchant payment transaction
+        
+        Note: Malgré l'ajout de tous les champs requis dans la documentation, l'API MVola
+        sandbox peut retourner une erreur "Missing field" (code 4001). Cela semble être une 
+        limitation de l'environnement sandbox plutôt qu'un problème avec cette implémentation.
 
         Args:
             amount (str): Transaction amount
@@ -180,13 +211,17 @@ class MVolaTransaction:
             credit_msisdn (str): MSISDN of the merchant
             description (str): Transaction description
             currency (str, optional): Currency code, default is "Ar"
-            foreign_currency (str, optional): Foreign currency code for conversion
-            foreign_amount (str, optional): Amount in foreign currency
+            foreign_currency (str, optional): Foreign currency code for conversion, default is "USD"
+            foreign_amount (str, optional): Amount in foreign currency, default is "1"
             correlation_id (str, optional): Custom correlation ID
-            user_language (str, optional): User language (FR or MG)
+            user_language (str, optional): User language (MG recommended)
             callback_url (str, optional): Callback URL for notifications
             requesting_organisation_transaction_reference (str, optional): Transaction ID on client side
             original_transaction_reference (str, optional): Reference number related to original transaction
+            cell_id_a (str, optional): Cell ID A from MVola API documentation
+            geo_location_a (str, optional): Geo Location A from MVola API documentation
+            cell_id_b (str, optional): Cell ID B from MVola API documentation
+            geo_location_b (str, optional): Geo Location B from MVola API documentation
 
         Returns:
             dict: Transaction response
@@ -208,46 +243,51 @@ class MVolaTransaction:
         if not requesting_organisation_transaction_reference:
             requesting_organisation_transaction_reference = f"ref{str(uuid.uuid4())[:8]}"
 
-        # Set up headers - simplifié selon l'exemple fonctionnel
+        # Get access token
         access_token = self.auth.get_access_token()
-        headers = {
-            "accept": "*/*",
-            "Version": API_VERSION,
-            "X-CorrelationID": correlation_id,
-            "UserLanguage": user_language,
-            "UserAccountIdentifier": f"msisdn;{self.partner_msisdn}",
-            "partnerName": self.partner_name,
-            "Cache-Control": "no-cache",
-            "Content-Type": "application/json",
-            "Authorization": f"Bearer {access_token}"
-        }
         
-        if callback_url:
-            headers["X-Callback-URL"] = callback_url
+        # Use the utility function to get the headers in the format that works
+        headers = get_mvola_headers(
+            access_token=access_token,
+            correlation_id=correlation_id,
+            user_language=user_language,
+            callback_url=callback_url,
+            partner_msisdn=self.partner_msisdn,
+            partner_name=self.partner_name
+        )
+        
+        # Add additional headers if provided
+        if cell_id_a:
+            headers["CellIdA"] = cell_id_a
+            
+        if geo_location_a:
+            headers["GeoLocationA"] = geo_location_a
+            
+        if cell_id_b:
+            headers["CellIdB"] = cell_id_b
+            
+        if geo_location_b:
+            headers["GeoLocationB"] = geo_location_b
 
         # Set up request body
         request_date = self._get_current_datetime()
 
+        # Create payload using the format from the working example
         payload = {
             "amount": str(amount),
             "currency": currency,
             "descriptionText": description,
             "requestDate": request_date,
             "requestingOrganisationTransactionReference": requesting_organisation_transaction_reference,
-            "originalTransactionReference": original_transaction_reference,
+            "originalTransactionReference": original_transaction_reference or "MVOLA_123",  # Use default value if not provided
             "debitParty": [{"key": "msisdn", "value": debit_msisdn}],
             "creditParty": [{"key": "msisdn", "value": credit_msisdn}],
-            "metadata": [{"key": "partnerName", "value": self.partner_name}],
+            "metadata": [
+                {"key": "partnerName", "value": credit_msisdn},  # Use credit_msisdn as partnerName in metadata
+                {"key": "fc", "value": foreign_currency or "USD"},
+                {"key": "amountFc", "value": str(foreign_amount or "1")}
+            ]
         }
-
-        # Add foreign currency information if provided
-        if foreign_currency and foreign_amount:
-            payload["metadata"].extend(
-                [
-                    {"key": "fc", "value": foreign_currency},
-                    {"key": "amountFc", "value": str(foreign_amount)},
-                ]
-            )
 
         # Send request
         url = urljoin(self.base_url, MERCHANT_PAY_ENDPOINT)
@@ -273,6 +313,10 @@ class MVolaTransaction:
                     if "fault" in error_data:
                         error_message = (
                             f"{error_message}: {error_data['fault'].get('message', '')}"
+                        )
+                    elif "errorDescription" in error_data:
+                        error_message = (
+                            f"{error_message}: {error_data['errorDescription']}"
                         )
                     elif "ErrorDescription" in error_data:
                         error_message = (
@@ -343,6 +387,10 @@ class MVolaTransaction:
                         error_message = (
                             f"{error_message}: {error_data['fault'].get('message', '')}"
                         )
+                    elif "errorDescription" in error_data:
+                        error_message = (
+                            f"{error_message}: {error_data['errorDescription']}"
+                        )
                     elif "ErrorDescription" in error_data:
                         error_message = (
                             f"{error_message}: {error_data['ErrorDescription']}"
@@ -409,6 +457,10 @@ class MVolaTransaction:
                     if "fault" in error_data:
                         error_message = (
                             f"{error_message}: {error_data['fault'].get('message', '')}"
+                        )
+                    elif "errorDescription" in error_data:
+                        error_message = (
+                            f"{error_message}: {error_data['errorDescription']}"
                         )
                     elif "ErrorDescription" in error_data:
                         error_message = (

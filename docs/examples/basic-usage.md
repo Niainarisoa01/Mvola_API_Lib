@@ -12,7 +12,9 @@ Commencez par installer la bibliothèque :
 
 ## Initialisation
 
-Pour commencer à utiliser la bibliothèque MVola API, vous devez d'abord initialiser un client :
+Pour commencer à utiliser la bibliothèque MVola API, vous avez deux méthodes :
+
+### Méthode 1 : Initialisation directe
 
 ```python
 from mvola_api import MVolaClient
@@ -22,8 +24,8 @@ client = MVolaClient(
     consumer_key="votre_consumer_key",
     consumer_secret="votre_consumer_secret",
     partner_name="Nom de votre application",
-    partner_msisdn="0343500003",  # Votre numéro MVola
-    base_url="https://devapi.mvola.mg"  # URL de l'API sandbox
+    partner_msisdn="0343500004",  # Utiliser 0343500004 pour sandbox
+    sandbox=True  # True pour sandbox, False pour production
 )
 
 # Initialisation pour l'environnement de production
@@ -31,8 +33,45 @@ prod_client = MVolaClient(
     consumer_key="votre_consumer_key_prod",
     consumer_secret="votre_consumer_secret_prod",
     partner_name="Nom de votre application",
-    partner_msisdn="0343500003",  # Votre numéro MVola
-    base_url="https://api.mvola.mg"  # URL de l'API de production
+    partner_msisdn="votre_numero_mvola",  # Votre vrai numéro MVola
+    sandbox=False  # Utiliser l'environnement de production
+)
+```
+
+### Méthode 2 : Utilisation des variables d'environnement (Recommandée)
+
+Cette méthode plus sécurisée évite de stocker les identifiants dans votre code.
+
+Créez d'abord un fichier `.env` à la racine de votre projet :
+
+```
+MVOLA_CONSUMER_KEY=votre_consumer_key
+MVOLA_CONSUMER_SECRET=votre_consumer_secret
+MVOLA_PARTNER_NAME=Nom de votre application
+MVOLA_PARTNER_MSISDN=0343500004
+MVOLA_SANDBOX=True
+```
+
+Puis utilisez-le dans votre code :
+
+```python
+from mvola_api import MVolaClient
+from dotenv import load_dotenv
+
+# Charger les variables d'environnement depuis le fichier .env
+load_dotenv()
+
+# Créer un client à partir des variables d'environnement
+client = MVolaClient.from_env()
+
+# Ou créer un client en surchargeant certaines variables d'environnement
+custom_client = MVolaClient(
+    # Ces valeurs seront chargées depuis les variables d'environnement
+    consumer_key=None,  # None indique d'utiliser la variable d'environnement
+    consumer_secret=None,
+    # Ces valeurs surchargeront les variables d'environnement
+    partner_name="Nom personnalisé",
+    sandbox=False  # Forcer l'utilisation de la production
 )
 ```
 
@@ -43,14 +82,13 @@ La bibliothèque gère automatiquement les tokens d'authentification, mais vous 
 ```python
 # Générer un token d'authentification
 token = client.generate_token()
-print(f"Token: {token['access_token']}")
+print(f"Token: {token['access_token'][:10]}...")  # Ne jamais afficher le token complet
 print(f"Expire dans: {token['expires_in']} secondes")
 print(f"Type: {token['token_type']}")
 print(f"Scope: {token['scope']}")
 
-# Obtenir directement le token d'accès (la méthode génère un nouveau token si nécessaire)
-access_token = client.get_access_token()
-print(f"Token d'accès: {access_token}")
+# Forcer le rafraîchissement d'un token
+new_token = client.generate_token(force_refresh=True)
 ```
 
 ## Initier un paiement
@@ -59,14 +97,13 @@ Pour initier un paiement MVola :
 
 ```python
 try:
-    transaction_info = client.initiate_merchant_payment(
+    transaction_info = client.initiate_payment(
         amount="1000",                           # Montant en ariary (chaîne)
         debit_msisdn="0343500003",               # Numéro qui paie
         credit_msisdn="0343500004",              # Numéro qui reçoit
         description="Paiement pour produit ABC", # Description (max 50 caractères)
         currency="Ar",                           # Devise (Ar par défaut)
-        requesting_organisation_transaction_reference="REF123456",  # Référence unique (optionnel)
-        callback_url="https://example.com/callback"  # URL de notification (optionnel)
+        callback_url="https://example.com/callback"  # URL de notification (recommandé)
     )
     
     # Récupérer les informations importantes
@@ -147,29 +184,28 @@ Voici un exemple complet qui combine plusieurs opérations :
 
 ```python
 from mvola_api import MVolaClient
-from mvola_api.exceptions import MVolaError, MVolaTransactionError
+from mvola_api.exceptions import MVolaError, MVolaAuthError, MVolaTransactionError
 import uuid
 import time
+from dotenv import load_dotenv
+
+# Charger les variables d'environnement
+load_dotenv()
 
 # Générer un ID de corrélation unique pour cette session
 correlation_id = str(uuid.uuid4())
 
 # Initialisation du client
 try:
-    client = MVolaClient(
-        consumer_key="votre_consumer_key",
-        consumer_secret="votre_consumer_secret",
-        partner_name="Nom de votre application",
-        partner_msisdn="0343500003",
-        base_url="https://devapi.mvola.mg"
-    )
+    # Utiliser les variables d'environnement
+    client = MVolaClient.from_env()
     
     # Générer une référence unique pour la transaction
     reference = f"REF-{uuid.uuid4().hex[:8].upper()}"
     
     # Initier un paiement
     print("Initiation du paiement...")
-    transaction_info = client.initiate_merchant_payment(
+    transaction_info = client.initiate_payment(
         amount="1000",
         debit_msisdn="0343500003",
         credit_msisdn="0343500004",
@@ -222,6 +258,10 @@ try:
         print(f"- Statut: {details['response'].get('transactionStatus')}")
         print(f"- Date: {details['response'].get('createDate')}")
     
+except MVolaAuthError as e:
+    print(f"Erreur d'authentification: {e}")
+    print("Vérifiez vos identifiants dans le fichier .env")
+    
 except MVolaTransactionError as e:
     print(f"Erreur de transaction: {e}")
     if hasattr(e, 'field'):
@@ -250,8 +290,8 @@ venv\Scripts\activate
 # Sur macOS/Linux
 source venv/bin/activate
 
-# Installer la bibliothèque
- pip install mvola-api-lib
+# Installer les dépendances
+pip install mvola-api-lib python-dotenv
 ```
 
 ## Voir aussi
