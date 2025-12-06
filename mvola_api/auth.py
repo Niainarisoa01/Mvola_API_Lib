@@ -4,11 +4,12 @@ MVola API Authentication Module
 
 import base64
 import time
+from typing import Dict, Any, Optional
 from urllib.parse import urljoin
 
 import requests
 
-from .constants import GRANT_TYPE, TOKEN_ENDPOINT, TOKEN_SCOPE
+from .constants import DEFAULT_TIMEOUT, GRANT_TYPE, TOKEN_ENDPOINT, TOKEN_SCOPE
 from .exceptions import MVolaAuthError
 
 
@@ -17,7 +18,7 @@ class MVolaAuth:
     Class for managing authentication with MVola API
     """
 
-    def __init__(self, consumer_key, consumer_secret, base_url):
+    def __init__(self, consumer_key: str, consumer_secret: str, base_url: str) -> None:
         """
         Initialize the auth module
 
@@ -29,10 +30,10 @@ class MVolaAuth:
         self.consumer_key = consumer_key
         self.consumer_secret = consumer_secret
         self.base_url = base_url
-        self.token = None
-        self.token_expiry = 0
+        self.token: Optional[Dict[str, Any]] = None
+        self.token_expiry: float = 0
 
-    def _encode_credentials(self):
+    def _encode_credentials(self) -> str:
         """
         Encode consumer key and secret for Basic Auth
 
@@ -43,7 +44,18 @@ class MVolaAuth:
         encoded = base64.b64encode(credentials.encode()).decode()
         return encoded
 
-    def generate_token(self, force_refresh=False):
+    def is_token_valid(self) -> bool:
+        """
+        Check if the current token is still valid
+        
+        Returns:
+            bool: True if token exists and is not expired (with 60s buffer)
+        """
+        if not self.token:
+            return False
+        return time.time() < self.token_expiry - 60
+
+    def generate_token(self, force_refresh: bool = False) -> Dict[str, Any]:
         """
         Generate an access token for MVola API
 
@@ -71,7 +83,7 @@ class MVolaAuth:
         data = {"grant_type": GRANT_TYPE, "scope": TOKEN_SCOPE}
 
         try:
-            response = requests.post(url, headers=headers, data=data)
+            response = requests.post(url, headers=headers, data=data, timeout=DEFAULT_TIMEOUT)
             response.raise_for_status()  # Raise exception for non-200 responses
 
             token_data = response.json()
@@ -103,7 +115,7 @@ class MVolaAuth:
                 response=e.response if hasattr(e, "response") else None,
             ) from e
 
-    def get_access_token(self, force_refresh=False):
+    def get_access_token(self, force_refresh: bool = False) -> str:
         """
         Get current access token or generate a new one
 

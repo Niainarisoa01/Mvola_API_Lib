@@ -19,7 +19,7 @@ pip install mvola-api-lib
 Pour installer une version spécifique :
 
 ```bash
-pip install mvola-api-lib==1.0.0
+pip install mvola-api-lib==1.4.0
 ```
 
 ## Installation avec les extras
@@ -72,7 +72,7 @@ client = MVolaClient(
     consumer_secret="votre_consumer_secret",
     partner_name="Nom de votre application",
     partner_msisdn="0343500003",  # Votre numéro MVola
-    base_url="https://devapi.mvola.mg"  # URL pour l'environnement sandbox
+    sandbox=True  # True pour sandbox, False pour production
 )
 ```
 

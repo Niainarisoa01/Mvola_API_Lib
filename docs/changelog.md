@@ -5,6 +5,23 @@ Toutes les modifications notables apportées à ce projet seront documentées da
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/),
 et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.1] - 2025-12-07
+
+### Ajouté
+- Nouvelle méthode `is_token_valid()` dans `MVolaAuth` pour vérifier la validité du token
+- Type hints complets dans tous les modules (`client.py`, `auth.py`, `transaction.py`)
+- Constante `DEFAULT_TIMEOUT = 30` pour les requêtes HTTP
+- Validation MSISDN avec `validate_msisdn()` dans les paramètres de transaction
+
+### Modifié
+- Timeout de 30 secondes ajouté à toutes les requêtes HTTP (prévention des blocages)
+- Nettoyage des imports inutilisés dans `client.py`
+
+### Corrigé
+- Exports manquants dans `__init__.py` : `MVolaValidationError`, `MVolaConnectionError`
+- Synchronisation de la version entre `__init__.py`, `pyproject.toml` et `setup.py`
+- Documentation corrigée : paramètre `sandbox` au lieu de `base_url`
+
 ## [1.4.0] - 2025-07-04
 
 ### Ajouté

@@ -119,6 +119,10 @@ print(f"Expire dans: {token['expires_in']} secondes")
 
 # Forcer le rafraîchissement d'un token
 token = client.generate_token(force_refresh=True)
+
+# Vérifier si le token est encore valide avant une opération
+if not client.auth.is_token_valid():
+    client.generate_token()
 ```
 
 ### Opérations de transaction

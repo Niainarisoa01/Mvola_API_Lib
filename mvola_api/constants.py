@@ -17,6 +17,9 @@ API_VERSION = "1.0"
 DEFAULT_LANGUAGE = "FR"
 DEFAULT_CURRENCY = "Ar"
 
+# HTTP Settings
+DEFAULT_TIMEOUT = 30  # seconds
+
 # Grant types
 GRANT_TYPE = "client_credentials"
 TOKEN_SCOPE = "EXT_INT_MVOLA_SCOPE"

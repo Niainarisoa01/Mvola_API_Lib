@@ -349,7 +349,7 @@ client = MVolaClient(
     consumer_secret,       # Consumer secret from MVola Developer Portal
     partner_name,          # Your application/merchant name
     partner_msisdn=None,   # Partner MSISDN (phone number)
-    base_url="https://devapi.mvola.mg",  # API base URL (sandbox or production)
+    sandbox=True,          # True for sandbox, False for production
     logger=None            # Custom logger
 )
 ```
@@ -375,7 +375,7 @@ client = MVolaClient(
 
 ### Requirements
 
-- Python 3.6+
+- Python 3.7+
 - requests library
 
 ### Installation for Development

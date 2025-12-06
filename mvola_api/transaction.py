@@ -4,6 +4,7 @@ MVola API Transaction Module
 
 import datetime
 import uuid
+from typing import Dict, Any, Optional, List
 from urllib.parse import urljoin
 
 import requests
@@ -12,12 +13,13 @@ from .constants import (
     API_VERSION,
     DEFAULT_CURRENCY,
     DEFAULT_LANGUAGE,
+    DEFAULT_TIMEOUT,
     MERCHANT_PAY_ENDPOINT,
     TRANSACTION_DETAILS_ENDPOINT,
     TRANSACTION_STATUS_ENDPOINT,
 )
 from .exceptions import MVolaTransactionError, MVolaValidationError
-from .utils import get_mvola_headers
+from .utils import get_mvola_headers, validate_msisdn
 
 
 class MVolaTransaction:
@@ -48,7 +50,7 @@ class MVolaTransaction:
         self.partner_name = partner_name
         self.partner_msisdn = partner_msisdn
 
-    def _generate_correlation_id(self):
+    def _generate_correlation_id(self) -> str:
         """
         Generate a unique correlation ID
 
@@ -57,7 +59,7 @@ class MVolaTransaction:
         """
         return str(uuid.uuid4())
 
-    def _get_current_datetime(self):
+    def _get_current_datetime(self) -> str:
         """
         Get current datetime in ISO 8601 format
 
@@ -83,8 +85,8 @@ class MVolaTransaction:
             )
 
     def _validate_transaction_params(
-        self, amount, debit_msisdn, credit_msisdn, description
-    ):
+        self, amount: str, debit_msisdn: str, credit_msisdn: str, description: str
+    ) -> None:
         """
         Validate transaction parameters
 
@@ -110,9 +112,13 @@ class MVolaTransaction:
         # Check MSISDNs
         if not debit_msisdn or not isinstance(debit_msisdn, str):
             errors.append("Debit MSISDN is required")
+        elif not validate_msisdn(debit_msisdn):
+            errors.append("Debit MSISDN format is invalid (must be 03XXXXXXXX)")
 
         if not credit_msisdn or not isinstance(credit_msisdn, str):
             errors.append("Credit MSISDN is required")
+        elif not validate_msisdn(credit_msisdn):
+            errors.append("Credit MSISDN format is invalid (must be 03XXXXXXXX)")
 
         # Check description
         if not description:
@@ -126,9 +132,11 @@ class MVolaTransaction:
             raise MVolaValidationError(message="; ".join(errors))
 
     def _get_headers(
-        self, correlation_id=None, user_language=DEFAULT_LANGUAGE, callback_url=None,
-        cell_id_a=None, geo_location_a=None, cell_id_b=None, geo_location_b=None
-    ):
+        self, correlation_id: Optional[str] = None, user_language: str = DEFAULT_LANGUAGE, 
+        callback_url: Optional[str] = None, cell_id_a: Optional[str] = None, 
+        geo_location_a: Optional[str] = None, cell_id_b: Optional[str] = None, 
+        geo_location_b: Optional[str] = None
+    ) -> Dict[str, str]:
         """
         Get standard headers for API requests
 
@@ -293,7 +301,7 @@ class MVolaTransaction:
         url = urljoin(self.base_url, MERCHANT_PAY_ENDPOINT)
 
         try:
-            response = requests.post(url, headers=headers, json=payload)
+            response = requests.post(url, headers=headers, json=payload, timeout=DEFAULT_TIMEOUT)
             response.raise_for_status()
 
             return {
@@ -367,7 +375,7 @@ class MVolaTransaction:
         )
 
         try:
-            response = requests.get(url, headers=headers)
+            response = requests.get(url, headers=headers, timeout=DEFAULT_TIMEOUT)
             response.raise_for_status()
 
             return {
@@ -438,7 +446,7 @@ class MVolaTransaction:
         url = urljoin(self.base_url, f"{TRANSACTION_DETAILS_ENDPOINT}{transaction_id}")
 
         try:
-            response = requests.get(url, headers=headers)
+            response = requests.get(url, headers=headers, timeout=DEFAULT_TIMEOUT)
             response.raise_for_status()
 
             return {

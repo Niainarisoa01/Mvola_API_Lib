@@ -49,6 +49,21 @@ access_token = auth.get_access_token()
 access_token = auth.get_access_token(force_refresh=True)
 ```
 
+### Vérification de la validité du token
+
+```python
+# Vérifier si le token actuel est encore valide (avec marge de 60 secondes)
+if auth.is_token_valid():
+    print("Token valide, prêt pour les requêtes")
+else:
+    print("Token expiré ou inexistant, génération nécessaire")
+    auth.generate_token()
+
+# Utilisation typique avant une opération critique
+if not auth.is_token_valid():
+    auth.generate_token(force_refresh=True)
+```
+
 ## Exceptions d'authentification
 
 Le module d'authentification peut lever les exceptions suivantes :

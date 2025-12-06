@@ -5,10 +5,11 @@ MVola API Client
 import logging
 import os
 from typing import Dict, Any, Optional, Union
+
 from dotenv import load_dotenv
 
 from .auth import MVolaAuth
-from .constants import PRODUCTION_URL, SANDBOX_URL, TEST_MSISDN_1, TEST_MSISDN_2, DEFAULT_CURRENCY, DEFAULT_LANGUAGE
+from .constants import PRODUCTION_URL, SANDBOX_URL, TEST_MSISDN_2, DEFAULT_CURRENCY
 from .exceptions import MVolaError, MVolaValidationError
 from .transaction import MVolaTransaction
 
@@ -26,13 +27,13 @@ class MVolaClient:
 
     def __init__(
         self,
-        consumer_key=None,
-        consumer_secret=None,
-        partner_name=None,
-        partner_msisdn=None,
-        sandbox=None,
-        logger=None,
-    ):
+        consumer_key: Optional[str] = None,
+        consumer_secret: Optional[str] = None,
+        partner_name: Optional[str] = None,
+        partner_msisdn: Optional[str] = None,
+        sandbox: Optional[bool] = None,
+        logger: Optional[logging.Logger] = None,
+    ) -> None:
         """
         Initialize the MVola client
 
@@ -88,7 +89,7 @@ class MVolaClient:
         """
         return cls()
 
-    def generate_token(self, force_refresh=False):
+    def generate_token(self, force_refresh: bool = False) -> Dict[str, Any]:
         """
         Generate an access token
 
@@ -110,7 +111,7 @@ class MVolaClient:
             self.logger.error(f"Token generation failed: {str(e)}")
             raise
 
-    def get_access_token(self):
+    def get_access_token(self) -> str:
         """
         Get the current access token, generating a new one if needed
 
@@ -121,23 +122,23 @@ class MVolaClient:
 
     def initiate_payment(
         self,
-        amount,
-        debit_msisdn,
-        credit_msisdn,
-        description,
-        currency=DEFAULT_CURRENCY,
-        foreign_currency="USD",  # Default to USD per working example
-        foreign_amount="1",      # Default to 1 per working example
-        correlation_id=None,
-        user_language="MG",      # Default to MG per working example
-        callback_url=None,
-        requesting_organisation_transaction_reference=None,
-        original_transaction_reference="MVOLA_123",  # Default value from working example
-        cell_id_a=None,
-        geo_location_a=None,
-        cell_id_b=None,
-        geo_location_b=None,
-    ):
+        amount: Union[str, int, float],
+        debit_msisdn: str,
+        credit_msisdn: str,
+        description: str,
+        currency: str = DEFAULT_CURRENCY,
+        foreign_currency: str = "USD",
+        foreign_amount: Union[str, int, float] = "1",
+        correlation_id: Optional[str] = None,
+        user_language: str = "MG",
+        callback_url: Optional[str] = None,
+        requesting_organisation_transaction_reference: Optional[str] = None,
+        original_transaction_reference: str = "MVOLA_123",
+        cell_id_a: Optional[str] = None,
+        geo_location_a: Optional[str] = None,
+        cell_id_b: Optional[str] = None,
+        geo_location_b: Optional[str] = None,
+    ) -> Dict[str, Any]:
         """
         Initiate a merchant payment
         
@@ -208,10 +209,10 @@ class MVolaClient:
 
     def get_transaction_status(
         self,
-        server_correlation_id,
-        correlation_id=None,
-        user_language="MG",  # Updated to MG for consistency
-    ):
+        server_correlation_id: str,
+        correlation_id: Optional[str] = None,
+        user_language: str = "MG",
+    ) -> Dict[str, Any]:
         """
         Get transaction status
 
@@ -243,10 +244,10 @@ class MVolaClient:
 
     def get_transaction_details(
         self,
-        transaction_id,
-        correlation_id=None,
-        user_language="MG",  # Updated to MG for consistency
-    ):
+        transaction_id: str,
+        correlation_id: Optional[str] = None,
+        user_language: str = "MG",
+    ) -> Dict[str, Any]:
         """
         Get transaction details
 
