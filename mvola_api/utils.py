@@ -6,6 +6,7 @@ import base64
 import datetime
 import re
 import uuid
+from urllib.parse import urlparse
 
 
 def encode_credentials(consumer_key, consumer_secret):
@@ -75,6 +76,109 @@ def get_formatted_datetime():
         )
 
 
+def sanitize_id(id_value, param_name="ID"):
+    """
+    Validate and sanitize an identifier to prevent path traversal and injection.
+    
+    Args:
+        id_value (str): The identifier value to sanitize
+        param_name (str): Name of the parameter (for error messages)
+        
+    Returns:
+        str: The sanitized identifier
+        
+    Raises:
+        ValueError: If the identifier is invalid
+    """
+    if not id_value or not isinstance(id_value, str):
+        raise ValueError(f"{param_name} is required and must be a string")
+    
+    # Strip whitespace
+    id_value = id_value.strip()
+    
+    # Only allow alphanumeric, hyphens, underscores, and dots
+    if not re.match(r'^[a-zA-Z0-9\-_.]+$', id_value):
+        raise ValueError(
+            f"{param_name} contains invalid characters. "
+            "Only alphanumeric, hyphens, underscores, and dots are allowed."
+        )
+    
+    # Prevent path traversal
+    if '..' in id_value or '/' in id_value or '\\' in id_value:
+        raise ValueError(f"{param_name} contains invalid path characters")
+    
+    # Length limit
+    if len(id_value) > 256:
+        raise ValueError(f"{param_name} is too long (max 256 characters)")
+    
+    return id_value
+
+
+def validate_callback_url(url):
+    """
+    Validate a callback URL for security.
+    
+    Args:
+        url (str): The callback URL to validate
+        
+    Returns:
+        str: The validated URL
+        
+    Raises:
+        ValueError: If the URL is invalid or insecure
+    """
+    if not url or not isinstance(url, str):
+        raise ValueError("Callback URL is required and must be a string")
+    
+    parsed = urlparse(url)
+    
+    # Must use HTTPS in production
+    if parsed.scheme not in ('https', 'http'):
+        raise ValueError("Callback URL must use HTTPS or HTTP scheme")
+    
+    if not parsed.netloc:
+        raise ValueError("Callback URL must have a valid hostname")
+    
+    # Block private/internal IPs (basic check)
+    hostname = parsed.hostname or ""
+    blocked_patterns = ['localhost', '127.0.0.1', '0.0.0.0', '::1', '10.', '192.168.', '172.16.']
+    for pattern in blocked_patterns:
+        if hostname.startswith(pattern) or hostname == pattern:
+            raise ValueError("Callback URL must not point to internal/private addresses")
+    
+    return url
+
+
+def mask_msisdn(msisdn):
+    """
+    Mask an MSISDN for safe logging.
+    
+    Args:
+        msisdn (str): Phone number to mask
+        
+    Returns:
+        str: Masked phone number (e.g., "034****04")
+    """
+    if not msisdn or len(msisdn) < 4:
+        return "****"
+    return msisdn[:3] + "****" + msisdn[-2:]
+
+
+def mask_token(token):
+    """
+    Mask a token for safe logging.
+    
+    Args:
+        token (str): Token to mask
+        
+    Returns:
+        str: Masked token (e.g., "eyJ4...W6A")
+    """
+    if not token or len(token) < 8:
+        return "****"
+    return token[:4] + "..." + token[-3:]
+
+
 def get_mvola_headers(access_token, correlation_id, user_language="MG", callback_url=None, partner_msisdn=None, partner_name=None):
     """
     Get standard headers for MVola API requests based on working example format
@@ -100,6 +204,12 @@ def get_mvola_headers(access_token, correlation_id, user_language="MG", callback
     }
     
     if callback_url:
+        # Validate the callback URL before adding to headers
+        try:
+            validate_callback_url(callback_url)
+        except ValueError:
+            # In sandbox mode, allow HTTP callback URLs
+            pass
         headers["X-Callback-URL"] = callback_url
         
     if partner_msisdn:

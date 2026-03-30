@@ -13,6 +13,7 @@ import os
 import sys
 import argparse
 import subprocess
+import shlex
 import logging
 
 # Configuration du logging
@@ -23,7 +24,12 @@ def run_command(command, description):
     """Exécute une commande shell et log le résultat"""
     logger.info(f"Exécution: {description}")
     try:
-        result = subprocess.run(command, shell=True, check=True, capture_output=True, text=True)
+        # Sécurité : utiliser une liste au lieu de shell=True pour éviter l'injection de commandes
+        if isinstance(command, str):
+            cmd_list = shlex.split(command)
+        else:
+            cmd_list = command
+        result = subprocess.run(cmd_list, check=True, capture_output=True, text=True)
         logger.info(f"✅ Succès: {description}")
         return True
     except subprocess.CalledProcessError as e:

@@ -12,12 +12,13 @@ from .auth import MVolaAuth
 from .constants import PRODUCTION_URL, SANDBOX_URL, TEST_MSISDN_2, DEFAULT_CURRENCY
 from .exceptions import MVolaError, MVolaValidationError
 from .transaction import MVolaTransaction
+from .utils import mask_msisdn
 
 # Configure logging
 logger = logging.getLogger("mvola_api")
 
-# Load environment variables from .env file
-load_dotenv()
+# Note: load_dotenv() is called in the constructor, not at module level,
+# to avoid unintended side effects when importing the module.
 
 
 class MVolaClient:
@@ -45,6 +46,10 @@ class MVolaClient:
             sandbox (bool, optional): Use sandbox environment. If None, will load from env var MVOLA_SANDBOX
             logger (logging.Logger, optional): Custom logger
         """
+        # Load environment variables from .env (only in constructor, not at import time)
+        # override=False ensures existing env vars are not overwritten
+        load_dotenv(override=False)
+
         # Load credentials from environment variables if not provided
         self.consumer_key = consumer_key or os.environ.get("MVOLA_CONSUMER_KEY")
         self.consumer_secret = consumer_secret or os.environ.get("MVOLA_CONSUMER_SECRET")
@@ -172,7 +177,7 @@ class MVolaClient:
         """
         try:
             self.logger.info(
-                f"Initiating MVola payment of {amount} from {debit_msisdn} to {credit_msisdn}"
+                f"Initiating MVola payment of [AMOUNT_HIDDEN] from {mask_msisdn(debit_msisdn)} to {mask_msisdn(credit_msisdn)}"
             )
 
             # Convert amount to string if needed

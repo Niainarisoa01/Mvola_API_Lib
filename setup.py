@@ -20,8 +20,6 @@ setuptools.setup(
     include_package_data=True,
     classifiers=[
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
@@ -35,10 +33,10 @@ setuptools.setup(
         "Topic :: Office/Business :: Financial",
     ],
     keywords="mvola, paiement, madagascar, telma, mobile money, api, fintech",
-    python_requires=">=3.7",
+    python_requires=">=3.9",
     install_requires=[
-        "requests>=2.25.0",
-        "python-dotenv>=0.19.0",
+        "requests>=2.25.0,<3.0.0",
+        "python-dotenv>=0.19.0,<2.0.0",
     ],
     extras_require={
         "dev": [

@@ -19,7 +19,7 @@ from .constants import (
     TRANSACTION_STATUS_ENDPOINT,
 )
 from .exceptions import MVolaTransactionError, MVolaValidationError
-from .utils import get_mvola_headers, validate_msisdn
+from .utils import get_mvola_headers, validate_msisdn, sanitize_id
 
 
 class MVolaTransaction:
@@ -360,6 +360,9 @@ class MVolaTransaction:
         Raises:
             MVolaTransactionError: If status request fails
         """
+        # Sanitize the server correlation ID to prevent path traversal
+        server_correlation_id = sanitize_id(server_correlation_id, "server_correlation_id")
+
         # Create correlation ID if not provided
         if not correlation_id:
             correlation_id = self._generate_correlation_id()
@@ -433,6 +436,9 @@ class MVolaTransaction:
         Raises:
             MVolaTransactionError: If details request fails
         """
+        # Sanitize the transaction ID to prevent path traversal
+        transaction_id = sanitize_id(transaction_id, "transaction_id")
+
         # Create correlation ID if not provided
         if not correlation_id:
             correlation_id = self._generate_correlation_id()
