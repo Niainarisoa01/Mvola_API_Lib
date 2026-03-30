@@ -204,6 +204,68 @@ class MVolaClient:
         """
         return self._auth.get_access_token()
 
+    def initiate_merchant_payment(
+        self,
+        amount: Union[str, int, float],
+        debit_msisdn: str,
+        credit_msisdn: str,
+        description: str,
+        currency: str = DEFAULT_CURRENCY,
+        foreign_currency: str = "USD",
+        foreign_amount: Union[str, int, float] = "1",
+        correlation_id: Optional[str] = None,
+        user_language: str = "MG",
+        callback_url: Optional[str] = None,
+        requesting_organisation_transaction_reference: Optional[str] = None,
+        original_transaction_reference: str = "MVOLA_123",
+        cell_id_a: Optional[str] = None,
+        geo_location_a: Optional[str] = None,
+        cell_id_b: Optional[str] = None,
+        geo_location_b: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """
+        Initiate a merchant payment (alias for initiate_payment).
+
+        Args:
+            amount: Payment amount (must be a positive integer)
+            debit_msisdn: MSISDN of the payer
+            credit_msisdn: MSISDN of the merchant
+            description: Payment description (max 50 chars)
+            currency: Currency code, default "Ar"
+            foreign_currency: Foreign currency code, default "USD"
+            foreign_amount: Amount in foreign currency, default "1"
+            correlation_id: Custom correlation ID
+            user_language: User language, default "MG"
+            callback_url: Callback URL for notifications
+            requesting_organisation_transaction_reference: Your transaction ID
+            original_transaction_reference: Reference number, default "MVOLA_123"
+            cell_id_a: Cell ID A
+            geo_location_a: Geo Location A
+            cell_id_b: Cell ID B
+            geo_location_b: Geo Location B
+
+        Returns:
+            Transaction response dict
+        """
+        return self.initiate_payment(
+            amount=amount,
+            debit_msisdn=debit_msisdn,
+            credit_msisdn=credit_msisdn,
+            description=description,
+            currency=currency,
+            foreign_currency=foreign_currency,
+            foreign_amount=foreign_amount,
+            correlation_id=correlation_id,
+            user_language=user_language,
+            callback_url=callback_url,
+            requesting_organisation_transaction_reference=requesting_organisation_transaction_reference,
+            original_transaction_reference=original_transaction_reference,
+            cell_id_a=cell_id_a,
+            geo_location_a=geo_location_a,
+            cell_id_b=cell_id_b,
+            geo_location_b=geo_location_b,
+        )
+
     def initiate_payment(
         self,
         amount: Union[str, int, float],

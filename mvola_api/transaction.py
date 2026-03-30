@@ -397,7 +397,7 @@ class MVolaTransaction:
             self._handle_error_response(e, "Failed to initiate transaction")
 
     def get_transaction_status(
-        self, server_correlation_id, correlation_id=None, user_language=DEFAULT_LANGUAGE
+        self, server_correlation_id, correlation_id=None, user_language="MG"
     ):
         """
         Get the status of a transaction.
@@ -447,7 +447,7 @@ class MVolaTransaction:
             self._handle_error_response(e, "Failed to get transaction status")
 
     def get_transaction_details(
-        self, transaction_id, correlation_id=None, user_language=DEFAULT_LANGUAGE
+        self, transaction_id, correlation_id=None, user_language="MG"
     ):
         """
         Get details of a transaction.

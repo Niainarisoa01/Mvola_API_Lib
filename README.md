@@ -134,12 +134,12 @@ print(f"Token généré: {token_data['access_token'][:10]}...")  # Ne jamais aff
 # REMARQUE IMPORTANTE: Dans l'environnement sandbox MVola:
 # - Utilisez uniquement 0343500003 et 0343500004
 result = client.initiate_payment(
-    amount=1000,  # Montant en Ariary (minimum 100)
-    currency="Ar",  # Devise (Ariary)
-    debit_msisdn="0343500003",  # Numéro du débiteur (celui qui paie)
-    credit_msisdn="0343500004",  # Numéro du créditeur (celui qui reçoit)
-    description="Test Transaction",  # Description de la transaction (max 50 caractères)
-    callback_url="https://example.com/callback"  # URL où MVola enverra des notifications (recommandé)
+    amount=1000,            # Montant en Ariary (minimum 100)
+    debit_msisdn="0343500003", # Numéro du débiteur (celui qui paie)
+    credit_msisdn="0343500004",# Numéro du créditeur (celui qui reçoit)
+    description="Test MVola",  # Description (max 50 caractères)
+    currency="Ar",          # Devise (Ar par défaut)
+    callback_url="https://example.com/callback" # URL de notification
 )
 
 # ======================================================
@@ -198,7 +198,7 @@ else:
 print("\n=== Test de get_transaction_details ===")
 
 # L'objectReference est l'ID unique de la transaction, nécessaire pour obtenir les détails
-transaction_id = status_result.get('objectReference')
+transaction_id = status_result['response'].get('objectReference')
 
 if transaction_id and transaction_id.strip():
     print(f"ID de transaction obtenu: {transaction_id}")
@@ -277,7 +277,7 @@ from mvola_api import MVolaClient, MVolaError, MVolaAuthError, MVolaTransactionE
 client = MVolaClient(...)
 
 try:
-    result = client.initiate_merchant_payment(...)
+    result = client.initiate_payment(...)
 except MVolaAuthError as e:
     print(f"Authentication error: {e}")
 except MVolaTransactionError as e:
@@ -357,9 +357,10 @@ client = MVolaClient(
 #### Methods
 
 - `generate_token(force_refresh=False)`: Generate an access token
-- `initiate_merchant_payment(amount, currency, debit_msisdn, credit_msisdn, description, requesting_organisation_transaction_reference, ...)`: Initiate a merchant payment
-- `get_transaction_status(server_correlation_id, user_language="FR")`: Get transaction status
-- `get_transaction_details(transaction_id, user_language="FR")`: Get transaction details
+- `initiate_payment(amount, debit_msisdn, credit_msisdn, description, currency="Ar", ...)`: Initiate a payment
+- `initiate_merchant_payment(...)`: Alias for `initiate_payment`
+- `get_transaction_status(server_correlation_id, user_language="MG")`: Get transaction status
+- `get_transaction_details(transaction_id, user_language="MG")`: Get transaction details
 
 ## Best Practices
 

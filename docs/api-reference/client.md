@@ -72,7 +72,6 @@ MVOLA_SANDBOX=True
 | partner_name     | str     | Nom de votre entreprise/application              | MVOLA_PARTNER_NAME     |
 | partner_msisdn   | str     | Votre numéro MVola                               | MVOLA_PARTNER_MSISDN   |
 | sandbox          | bool    | True pour utiliser l'environnement sandbox       | MVOLA_SANDBOX ou True  |
-| language         | str     | Langue par défaut ("MG" ou "FR")                 | "MG"                   |
 | logger           | Logger  | Logger personnalisé                              | None                   |
 
 ### Utilisation d'un logger personnalisé
@@ -253,7 +252,7 @@ except MVolaError as e:
 5. **En-têtes HTTP** : La bibliothèque utilise désormais des en-têtes optimisés pour la compatibilité avec l'API MVola, comme :
    - `version` en minuscule (au lieu de `Version`)
    - `Accept-Charset: utf-8`
-   - `UserLanguage: MG` par défaut (au lieu de `FR`)
+   - `UserLanguage: MG` par défaut
 
 6. **Callbacks** : L'utilisation de l'en-tête `X-Callback-URL` est fortement recommandée pour recevoir des notifications automatiques.
 
