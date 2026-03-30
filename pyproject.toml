@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "mvola-api-lib"
-version = "1.4.1"
-description = "Une bibliothèque Python robuste pour l'intégration de l'API de paiement MVola"
+version = "2.0.0"
+description = "Une bibliothèque Python robuste et sécurisée pour l'intégration de l'API de paiement MVola"
 readme = "README.md"
 authors = [
     {name = "Niainarisoa", email = "niainarisoa.mail@gmail.com"}
@@ -24,10 +24,11 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: Office/Business :: Financial",
 ]
-keywords = ["mvola", "payment", "api", "madagascar", "fintech", "mobile money"]
+keywords = ["mvola", "payment", "api", "madagascar", "fintech", "mobile money", "security"]
 dependencies = [
     "requests>=2.25.0,<3.0.0",
     "python-dotenv>=0.19.0,<2.0.0",
+    "urllib3>=1.26.0,<3.0.0",
 ]
 requires-python = ">=3.9"
 
@@ -44,6 +45,8 @@ dev = [
     "black>=21.5b2",
     "isort>=5.9.1",
     "flake8>=3.9.2",
+    "bandit>=1.7.0",
+    "safety>=2.0.0",
 ]
 docs = [
     "mkdocs>=1.3.0",
@@ -68,5 +71,9 @@ line_length = 88
 minversion = "6.0"
 testpaths = ["tests"]
 
+[tool.bandit]
+exclude_dirs = ["tests", "scripts"]
+skips = ["B101"]
+
 [tool.hatch.build.targets.wheel]
-packages = ["mvola_api"] 
+packages = ["mvola_api"]

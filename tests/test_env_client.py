@@ -9,59 +9,39 @@ import unittest
 from unittest.mock import patch
 from dotenv import load_dotenv
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from mvola_api import MVolaClient
 from mvola_api.constants import TEST_MSISDN_1, TEST_MSISDN_2, SANDBOX_URL
 
-# Charger les variables d'environnement
-load_dotenv()
-
 
 class TestEnvClient(unittest.TestCase):
     """
-    Tests pour la fonctionnalité d'utilisation des variables d'environnement
+    Tests pour la fonctionnalité d'utilisation des variables d'environnement.
+
+    Note: Credentials are now stored as private attributes (_consumer_key, etc.)
+    and can only be verified through the sandbox/partner_name/partner_msisdn properties.
     """
 
-    def setUp(self):
-        """Configuration des tests"""
-        # Sauvegarder les variables d'environnement actuelles
-        self.original_env = {
-            "MVOLA_CONSUMER_KEY": os.environ.get("MVOLA_CONSUMER_KEY"),
-            "MVOLA_CONSUMER_SECRET": os.environ.get("MVOLA_CONSUMER_SECRET"),
-            "MVOLA_PARTNER_NAME": os.environ.get("MVOLA_PARTNER_NAME"),
-            "MVOLA_PARTNER_MSISDN": os.environ.get("MVOLA_PARTNER_MSISDN"),
-            "MVOLA_SANDBOX": os.environ.get("MVOLA_SANDBOX")
-        }
-
-    def tearDown(self):
-        """Nettoyage après les tests"""
-        # Restaurer les variables d'environnement originales
-        for key, value in self.original_env.items():
-            if value:
-                os.environ[key] = value
-            elif key in os.environ:
-                del os.environ[key]
-
+    @patch.dict(os.environ, {
+        "MVOLA_CONSUMER_KEY": "test_key_env",
+        "MVOLA_CONSUMER_SECRET": "test_secret_env",
+        "MVOLA_PARTNER_NAME": "Test Partner From Env",
+        "MVOLA_PARTNER_MSISDN": "0343500004",
+        "MVOLA_SANDBOX": "True"
+    })
     def test_from_env_method(self):
         """Test la méthode from_env()"""
-        print("\n===== TEST: CRÉATION DU CLIENT AVEC FROM_ENV() =====")
-        
-        # Créer un client avec la méthode from_env
         client = MVolaClient.from_env()
-        
-        # Vérifications
-        self.assertEqual(client.consumer_key, os.environ.get("MVOLA_CONSUMER_KEY"))
-        self.assertEqual(client.consumer_secret, os.environ.get("MVOLA_CONSUMER_SECRET"))
-        self.assertEqual(client.partner_name, os.environ.get("MVOLA_PARTNER_NAME"))
-        self.assertEqual(client.partner_msisdn, os.environ.get("MVOLA_PARTNER_MSISDN"))
-        
-        # Vérifier que le sandbox est correctement interprété depuis l'environnement
-        sandbox_env = os.environ.get("MVOLA_SANDBOX", "True")
-        expected_sandbox = sandbox_env.lower() in ("true", "1", "t", "yes")
-        self.assertEqual(client.sandbox, expected_sandbox)
-        
-        print(f"✅ Test de création du client depuis variables d'environnement réussi")
+
+        # Verify non-sensitive properties
+        self.assertEqual(client.partner_name, "Test Partner From Env")
+        self.assertEqual(client.partner_msisdn, "0343500004")
+        self.assertTrue(client.sandbox)
+
+        # Verify credentials are NOT exposed publicly
+        self.assertFalse(hasattr(client, "consumer_key"))
+        self.assertFalse(hasattr(client, "consumer_secret"))
 
     @patch.dict(os.environ, {
         "MVOLA_CONSUMER_KEY": "test_key_env",
@@ -72,9 +52,7 @@ class TestEnvClient(unittest.TestCase):
     })
     def test_env_override(self):
         """Test la priorité des paramètres directs sur les variables d'environnement"""
-        print("\n===== TEST: PRIORITÉ DES PARAMÈTRES =====")
-        
-        # Créer un client avec des paramètres explicites qui doivent avoir priorité
+        # Create client with explicit parameters that must take priority
         client = MVolaClient(
             consumer_key="direct_key",
             consumer_secret="direct_secret",
@@ -82,23 +60,17 @@ class TestEnvClient(unittest.TestCase):
             partner_msisdn="0343500003",
             sandbox=False
         )
-        
-        # Vérifier que les paramètres directs ont priorité
-        self.assertEqual(client.consumer_key, "direct_key")
-        self.assertEqual(client.consumer_secret, "direct_secret")
+
+        # Verify explicit parameters take priority
         self.assertEqual(client.partner_name, "Direct Partner")
         self.assertEqual(client.partner_msisdn, "0343500003")
         self.assertEqual(client.sandbox, False)
-        
-        # Vérifier que le client créé depuis l'environnement utilise les variables d'environnement
+
+        # Verify env client uses env vars
         env_client = MVolaClient.from_env()
-        self.assertEqual(env_client.consumer_key, "test_key_env")
-        self.assertEqual(env_client.consumer_secret, "test_secret_env")
         self.assertEqual(env_client.partner_name, "Test Partner From Env")
         self.assertEqual(env_client.partner_msisdn, "0343500004")
         self.assertEqual(env_client.sandbox, True)
-        
-        print(f"✅ Test de priorité des paramètres réussi")
 
     @patch.dict(os.environ, {
         "MVOLA_CONSUMER_KEY": "test_key_env",
@@ -109,53 +81,40 @@ class TestEnvClient(unittest.TestCase):
     })
     def test_partial_override(self):
         """Test l'utilisation mixte de paramètres et variables d'environnement"""
-        print("\n===== TEST: UTILISATION MIXTE =====")
-        
-        # Créer un client avec seulement certains paramètres explicites
         client = MVolaClient(
             partner_name="Mixed Partner",
             sandbox=True
         )
-        
-        # Vérifier que les paramètres explicites ont priorité
-        self.assertEqual(client.consumer_key, "test_key_env")  # De l'environnement
-        self.assertEqual(client.consumer_secret, "test_secret_env")  # De l'environnement
-        self.assertEqual(client.partner_name, "Mixed Partner")  # Explicite
-        self.assertEqual(client.partner_msisdn, "0343500004")  # De l'environnement
-        self.assertEqual(client.sandbox, True)  # Explicite
-        
-        print(f"✅ Test d'utilisation mixte réussi")
+
+        # Verify mixed behavior
+        self.assertEqual(client.partner_name, "Mixed Partner")  # Explicit
+        self.assertEqual(client.partner_msisdn, "0343500004")  # From env
+        self.assertEqual(client.sandbox, True)  # Explicit
 
     @patch.dict(os.environ, {
+        "MVOLA_CONSUMER_KEY": "test_key",
+        "MVOLA_CONSUMER_SECRET": "test_secret",
+        "MVOLA_PARTNER_NAME": "Test",
         "MVOLA_SANDBOX": "invalid_value"
     })
     def test_sandbox_parsing(self):
         """Test l'interprétation des valeurs de sandbox"""
-        print("\n===== TEST: INTERPRÉTATION DE SANDBOX =====")
-        
-        # Tester différentes valeurs pour le paramètre sandbox
-        
-        # 1. Valeur invalide dans l'environnement - doit être interprétée comme False
+        # Invalid value → should be interpreted as False
         client1 = MVolaClient.from_env()
         self.assertEqual(client1.sandbox, False)
-        
-        # 2. Valeurs True explicites
+
+        # True values
         for value in ["true", "True", "TRUE", "1", "yes", "t"]:
             os.environ["MVOLA_SANDBOX"] = value
             client = MVolaClient.from_env()
-            self.assertEqual(client.sandbox, True, f"Sandbox devrait être True pour '{value}'")
-        
-        # 3. Valeurs False explicites
+            self.assertEqual(client.sandbox, True, f"Sandbox should be True for '{value}'")
+
+        # False values
         for value in ["false", "False", "FALSE", "0", "no", "f"]:
             os.environ["MVOLA_SANDBOX"] = value
             client = MVolaClient.from_env()
-            self.assertEqual(client.sandbox, False, f"Sandbox devrait être False pour '{value}'")
-        
-        print(f"✅ Test d'interprétation de sandbox réussi")
+            self.assertEqual(client.sandbox, False, f"Sandbox should be False for '{value}'")
 
 
 if __name__ == "__main__":
-    print("\n========================================")
-    print("TESTS D'UTILISATION DES VARIABLES D'ENVIRONNEMENT")
-    print("========================================\n")
-    unittest.main() 
+    unittest.main()

@@ -1,5 +1,8 @@
 """
 Setup script for mvola_api package
+
+NOTE: pyproject.toml is the primary build configuration.
+This setup.py is kept for backwards compatibility only.
 """
 import setuptools
 
@@ -8,10 +11,10 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="mvola_api",
-    version="1.4.1",
+    version="2.0.0",
     author="Niainarisoa",
     author_email="niainarisoa.mail@gmail.com",
-    description="Une bibliothèque Python robuste pour l'intégration de l'API de paiement MVola",
+    description="Une bibliothèque Python robuste et sécurisée pour l'intégration de l'API de paiement MVola",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/Niainarisoa01/Mvola_API_Lib",
@@ -32,11 +35,12 @@ setuptools.setup(
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Topic :: Office/Business :: Financial",
     ],
-    keywords="mvola, paiement, madagascar, telma, mobile money, api, fintech",
+    keywords="mvola, paiement, madagascar, telma, mobile money, api, fintech, security",
     python_requires=">=3.9",
     install_requires=[
         "requests>=2.25.0,<3.0.0",
         "python-dotenv>=0.19.0,<2.0.0",
+        "urllib3>=1.26.0,<3.0.0",
     ],
     extras_require={
         "dev": [
@@ -45,14 +49,15 @@ setuptools.setup(
             "black>=21.5b2",
             "flake8>=3.9.0",
             "isort>=5.9.0",
+            "bandit>=1.7.0",
+            "safety>=2.0.0",
         ],
         "docs": [
             "mkdocs>=1.2.0",
             "mkdocs-material>=7.1.0",
             "mkdocstrings>=0.15.0",
             "mkdocstrings-python>=0.5.0",
-            "markdown-pdf>=1.0.0",  # Pour la génération de PDF
-            "mike>=1.1.2",  # Pour la gestion des versions de documentation
+            "mike>=1.1.2",
         ],
     },
     project_urls={
@@ -61,4 +66,4 @@ setuptools.setup(
         "Bug Reports": "https://github.com/Niainarisoa01/Mvola_API_Lib/issues",
         "Changelog": "https://github.com/Niainarisoa01/Mvola_API_Lib/blob/main/docs/changelog.md",
     },
-) 
+)
