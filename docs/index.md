@@ -26,39 +26,14 @@ pip install mvola-api-lib
 
 ## Fonctionnalités principales
 
-- ✅ Gestion des jetons d'authentification avec scope `EXT_INT_MVOLA_SCOPE`
-- ✅ Paiements marchands (initiation, statut, détails)
-- ✅ Support des environnements Sandbox et Production
-- ✅ Validation des paramètres
-- ✅ Gestion robuste des erreurs
-- ✅ Journalisation intégrée
-- ✅ Support des variables d'environnement pour une meilleure sécurité
-
-## Utilisation rapide
-
-Pour un démarrage rapide, consultez les exemples dans la section [Guide d'utilisation](guides/installation.md).
-
-## Formats de documentation
-
-La documentation est disponible en plusieurs formats:
-
-- [Documentation en ligne](https://niainarisoa01.github.io/Mvola_API_Lib/)
-- [Documentation Markdown sur GitHub](https://github.com/Niainarisoa01/Mvola_API_Lib/blob/main/docs/documentation.md)
-
-## Support
-
-Pour toute question technique, contactez:
-- Le support MVola via le portail développeur
-- Créez une [issue sur GitHub](https://github.com/Niainarisoa01/Mvola_API_Lib/issues)
-
-## Fonctionnalités
-
-- ✅ API simple et intuitive pour l'intégration des paiements MVola
-- ✅ Gestion automatique des tokens d'authentification
-- ✅ Support complet des opérations de paiement marchand
-- ✅ Gestion complète des erreurs et validation des paramètres
-- ✅ Support de journalisation
-- ✅ Compatible avec les environnements sandbox et production
+- ✅ Interaction simplifiée avec les API de paiement MVola
+- ✅ Gestion automatique du cycle de vie des tokens d'authentification (scope `EXT_INT_MVOLA_SCOPE`)
+- ✅ Support complet des opérations de paiement marchand (initiation, statut, détails)
+- ✅ Compatible avec les environnements Sandbox et Production
+- ✅ Validation stricte des données (montant, format MSISDN, description) en amont
+- ✅ Gestion complète des erreurs avec une hiérarchie d'exceptions typées
+- ✅ Support de journalisation pour le débogage et le suivi
+- ✅ Configuration flexible via des variables d'environnement (`.env`) ou en dur
 
 ## Démarrage rapide
 

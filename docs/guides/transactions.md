@@ -35,7 +35,7 @@ client = MVolaClient(
     consumer_secret="votre_consumer_secret",
     partner_name="NOM_DU_PARTENAIRE",
     partner_msisdn="0343500003",
-    base_url="https://devapi.mvola.mg"  # URL pour l'environnement sandbox
+    sandbox=True  # True pour sandbox, False pour production
 )
 
 # Informations de transaction
@@ -203,38 +203,7 @@ except Exception as e:
     print(f"Erreur inattendue: {e}")
     # Gérer toute autre erreur inattendue
 
-## Codes d'erreur HTTP
-
-L'API MVola utilise les codes d'erreur HTTP standard pour indiquer le résultat des requêtes :
-
-| Code | Description |
-|------|-------------|
-| 200 | OK - La requête a réussi |
-| 400 | Bad Request - Requête incorrecte, souvent en raison d'un paramètre manquant |
-| 401 | Unauthorized - Clé API invalide fournie |
-| 402 | Request Failed - Les paramètres sont valides mais la requête a échoué |
-| 403 | Forbidden - La clé API n'a pas les permissions nécessaires |
-| 404 | Not Found - La ressource demandée n'existe pas |
-| 409 | Conflict - La requête est en conflit avec une autre requête |
-| 429 | Too Many Requests - Trop de requêtes envoyées à l'API trop rapidement |
-| 500, 502, 503, 504 | Server Errors - Erreur au niveau du serveur |
 ```
-
-## Codes d'erreur HTTP
-
-L'API MVola utilise les codes d'erreur HTTP standard pour indiquer le résultat des requêtes :
-
-| Code | Description |
-|------|-------------|
-| 200 | OK - La requête a réussi |
-| 400 | Bad Request - Requête incorrecte, souvent en raison d'un paramètre manquant |
-| 401 | Unauthorized - Clé API invalide fournie |
-| 402 | Request Failed - Les paramètres sont valides mais la requête a échoué |
-| 403 | Forbidden - La clé API n'a pas les permissions nécessaires |
-| 404 | Not Found - La ressource demandée n'existe pas |
-| 409 | Conflict - La requête est en conflit avec une autre requête |
-| 429 | Too Many Requests - Trop de requêtes envoyées à l'API trop rapidement |
-| 500, 502, 503, 504 | Server Errors - Erreur au niveau du serveur |
 
 ## Meilleures pratiques
 
@@ -259,7 +228,7 @@ client = MVolaClient(
     consumer_secret="votre_consumer_secret",
     partner_name="NOM_DU_PARTENAIRE",
     partner_msisdn="0343500003",
-    base_url="https://devapi.mvola.mg"
+    sandbox=True  # True pour sandbox, False pour production
 )
 
 # Informations de transaction

@@ -16,13 +16,13 @@ from mvola_api.auth import MVolaAuth
 auth = MVolaAuth(
     consumer_key="votre_consumer_key",
     consumer_secret="votre_consumer_secret",
-    base_url="https://devapi.mvola.mg"  # URL de l'API (sandbox par défaut)
+    base_url="https://devapi.mvola.mg"  # URL de l'API (ex: environnement sandbox)
 )
 
 # Initialiser le gestionnaire de transactions
 transaction = MVolaTransaction(
     auth=auth,
-    base_url="https://devapi.mvola.mg",  # URL de l'API (sandbox par défaut)
+    base_url="https://devapi.mvola.mg",  # Mettre la même URL que pour l'authentification
     partner_name="NOM_DU_PARTENAIRE",
     partner_msisdn="0343500003"  # Format: 03XXXXXXXX
 )
@@ -46,7 +46,7 @@ try:
         foreign_amount="2.5",                    # Montant en devise étrangère (optionnel)
         callback_url="https://example.com/callback",  # URL de notification (optionnel)
         correlation_id=None,                     # ID de corrélation (généré automatiquement si non fourni)
-        user_language="MG"                       # Langue (MG recommandé)
+        user_language="FR"                       # Langue (FR ou MG)
     )
     
     # Récupérer les informations importantes
@@ -69,7 +69,7 @@ try:
     status_info = transaction.get_transaction_status(
         server_correlation_id="correlation-id-12345",  # ID de corrélation reçu lors de l'initiation
         correlation_id=None,  # ID de corrélation pour cette requête (optionnel)
-        user_language="MG"    # Langue (MG recommandé)
+        user_language="FR"    # Langue (FR ou MG)
     )
     
     status = status_info['response']['status']
@@ -91,7 +91,7 @@ try:
     transaction_details = transaction.get_transaction_details(
         transaction_id="transaction-id-12345",  # ID de transaction obtenu après complétion
         correlation_id=None,  # ID de corrélation pour cette requête (optionnel)
-        user_language="MG"    # Langue (MG recommandé)
+        user_language="FR"    # Langue (FR ou MG)
     )
     
     details = transaction_details['response']
@@ -124,7 +124,7 @@ headers = {
     "Authorization": "Bearer <ACCESS_TOKEN>",
     "Version": "1.0",
     "X-CorrelationID": "<ID_CORRELATION>",
-    "UserLanguage": "MG",
+    "UserLanguage": "FR",  # ou "MG"
     "UserAccountIdentifier": "msisdn;<MSISDN_PARTENAIRE>",
     "partnerName": "<NOM_PARTENAIRE>",
     "Content-Type": "application/json",

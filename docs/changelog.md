@@ -5,6 +5,26 @@ Toutes les modifications notables apportées à ce projet seront documentées da
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/),
 et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2026-04-01
+
+### Ajouté
+- Support de Python 3.14 dans les classifiers
+- Fonctions de sécurité : `sanitize_id()`, `validate_callback_url()`, `mask_msisdn()`, `mask_token()` dans `utils.py`
+- Thread-safety pour la génération de tokens (`threading.Lock` dans `MVolaAuth`)
+- Nettoyage automatique des tokens expirés en mémoire (`_clear_expired_token`)
+- Représentation sécurisée de `MVolaAuth` (`__repr__` et `__str__`) pour éviter les fuites de credentials dans les logs
+- Pre-commit hooks avec `detect-secrets`, `black`, `isort`, `flake8`
+- Fichier `SECURITY.md` pour la politique de sécurité
+
+### Modifié
+- `.gitignore` entièrement réécrit et nettoyé (suppression des doublons, ajout de sections frontend/Node.js et AI tools)
+- Masquage automatique des montants et MSISDNs dans les logs du client
+- Propriétés read-only pour `consumer_key`, `consumer_secret`, `token` dans `MVolaAuth`
+
+### Corrigé
+- `.gitignore` empêchait le dossier `examples/` d'être tracké par git
+- Version synchronisée dans `pyproject.toml`, `setup.py` et `__init__.py`
+
 ## [1.4.1] - 2025-12-07
 
 ### Ajouté
@@ -88,11 +108,3 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Support pour l'authentification
 - Support pour l'initiation de paiement
 - Documentation de base
-
-## [Non publié]
-
-### Ajouté
-- Structure initiale du projet
-- Configuration de build avec pyproject.toml
-- Framework de tests
-- Documentation avec MkDocs 

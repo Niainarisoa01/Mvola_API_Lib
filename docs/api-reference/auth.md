@@ -14,7 +14,7 @@ from mvola_api.auth import MVolaAuth
 auth = MVolaAuth(
     consumer_key="votre_consumer_key",
     consumer_secret="votre_consumer_secret",
-    base_url="https://devapi.mvola.mg"  # URL de l'API (sandbox par défaut)
+    base_url="https://devapi.mvola.mg"  # URL de l'API (sandbox)
 )
 ```
 

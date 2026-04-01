@@ -4,7 +4,7 @@ Ce guide vous aidera à installer la bibliothèque MVola API dans votre environn
 
 ## Prérequis
 
-- Python 3.7 ou supérieur
+- Python 3.9 ou supérieur
 - pip (gestionnaire de paquets Python)
 - Un compte développeur MVola avec des clés d'API (pour l'utilisation réelle)
 
@@ -19,7 +19,7 @@ pip install mvola-api-lib
 Pour installer une version spécifique :
 
 ```bash
-pip install mvola-api-lib==1.4.0
+pip install mvola-api-lib==1.5.0
 ```
 
 ## Installation avec les extras
@@ -56,7 +56,7 @@ Vous pouvez vérifier que l'installation a réussi en important la bibliothèque
 
 ```python
 import mvola_api
-print(mvola_api.__version__)
+print(mvola_api.__version__)  # Affiche: 1.5.0
 ```
 
 ## Configuration initiale
@@ -103,8 +103,8 @@ Une fois que vous avez terminé vos tests dans l'environnement sandbox :
 1. Cliquez sur le bouton "GO LIVE" dans le portail développeur
 2. Suivez les instructions pour fournir les documents et informations requises
 3. Une fois approuvée, vous recevrez vos clés API de production
-4. Mettez à jour la configuration de votre application pour utiliser l'URL de production (https://api.mvola.mg)
+4. Mettez à jour la configuration de votre application pour utiliser `sandbox=False`
 
 ## Prochaines étapes
 
-Après l'installation, consultez le [guide d'authentification](authentication.md) pour apprendre à configurer l'authentification avec l'API MVola. 
+Après l'installation, consultez le [guide d'authentification](authentication.md) pour apprendre à configurer l'authentification avec l'API MVola.
