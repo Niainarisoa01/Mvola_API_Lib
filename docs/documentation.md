@@ -257,7 +257,7 @@ Procédure:
 3. Le statut initial sera "pending"
 4. Pour simuler une approbation, utilisez le portail développeur
 
-## Utilisation des variables d'environnement
+## Environnement
 
 ### Configuration des variables d'environnement
 

@@ -41,6 +41,7 @@ nav:
       - Utilitaires: api-reference/utils.md
   - Explication:
       - Architecture: explanation/architecture.md
+  - Résultats des tests: tests_results.md
   - Contribution: contributing.md
   - Changelog: changelog.md
 

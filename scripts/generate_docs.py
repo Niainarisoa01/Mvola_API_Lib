@@ -3,8 +3,12 @@
 Script pour générer la documentation en différents formats
 """
 import os
+import sys
 import subprocess
 import logging
+
+# Supprimer le warning de mkdocs-material concernant MkDocs 2.0
+os.environ["NO_MKDOCS_2_WARNING"] = "true"
 
 # Configuration du logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -79,7 +83,7 @@ def generate_pdf():
 def build_mkdocs():
     """Construit le site de documentation avec MkDocs"""
     try:
-        subprocess.run(["mkdocs", "build"], check=True)
+        subprocess.run([sys.executable, "-m", "mkdocs", "build"], check=True)
         logger.info("Site MkDocs généré avec succès")
         return True
     except subprocess.CalledProcessError as e:
@@ -89,7 +93,7 @@ def build_mkdocs():
 def deploy_mkdocs():
     """Déploie le site MkDocs sur GitHub Pages"""
     try:
-        subprocess.run(["mkdocs", "gh-deploy"], check=True)
+        subprocess.run([sys.executable, "-m", "mkdocs", "gh-deploy"], check=True)
         logger.info("Site MkDocs déployé avec succès sur GitHub Pages")
         return True
     except subprocess.CalledProcessError as e:
