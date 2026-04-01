@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -33,7 +33,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.618322db.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -776,17 +776,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#codes-derreur-http" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Codes d'erreur HTTP
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#meilleures-pratiques" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1450,17 +1439,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#codes-derreur-http" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Codes d'erreur HTTP
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#meilleures-pratiques" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1543,7 +1521,7 @@
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="n">consumer_secret</span><span class="o">=</span><span class="s2">&quot;votre_consumer_secret&quot;</span><span class="p">,</span>
 <a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">partner_name</span><span class="o">=</span><span class="s2">&quot;NOM_DU_PARTENAIRE&quot;</span><span class="p">,</span>
 <a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="n">partner_msisdn</span><span class="o">=</span><span class="s2">&quot;0343500003&quot;</span><span class="p">,</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="n">base_url</span><span class="o">=</span><span class="s2">&quot;https://devapi.mvola.mg&quot;</span>  <span class="c1"># URL pour l&#39;environnement sandbox</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="n">sandbox</span><span class="o">=</span><span class="kc">True</span>  <span class="c1"># True pour sandbox, False pour production</span>
 <a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="p">)</span>
 <a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>
 <a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="c1"># Informations de transaction</span>
@@ -1694,71 +1672,7 @@
 <a id="__codelineno-4-22" name="__codelineno-4-22" href="#__codelineno-4-22"></a><span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
 <a id="__codelineno-4-23" name="__codelineno-4-23" href="#__codelineno-4-23"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Erreur inattendue: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <a id="__codelineno-4-24" name="__codelineno-4-24" href="#__codelineno-4-24"></a>    <span class="c1"># Gérer toute autre erreur inattendue</span>
-<a id="__codelineno-4-25" name="__codelineno-4-25" href="#__codelineno-4-25"></a>
-<a id="__codelineno-4-26" name="__codelineno-4-26" href="#__codelineno-4-26"></a><span class="c1">## Codes d&#39;erreur HTTP</span>
-<a id="__codelineno-4-27" name="__codelineno-4-27" href="#__codelineno-4-27"></a>
-<a id="__codelineno-4-28" name="__codelineno-4-28" href="#__codelineno-4-28"></a><span class="n">L</span><span class="s1">&#39;API MVola utilise les codes d&#39;</span><span class="n">erreur</span> <span class="n">HTTP</span> <span class="n">standard</span> <span class="n">pour</span> <span class="n">indiquer</span> <span class="n">le</span> <span class="n">résultat</span> <span class="n">des</span> <span class="n">requêtes</span> <span class="p">:</span>
-<a id="__codelineno-4-29" name="__codelineno-4-29" href="#__codelineno-4-29"></a>
-<a id="__codelineno-4-30" name="__codelineno-4-30" href="#__codelineno-4-30"></a><span class="o">|</span> <span class="n">Code</span> <span class="o">|</span> <span class="n">Description</span> <span class="o">|</span>
-<a id="__codelineno-4-31" name="__codelineno-4-31" href="#__codelineno-4-31"></a><span class="o">|------|-------------|</span>
-<a id="__codelineno-4-32" name="__codelineno-4-32" href="#__codelineno-4-32"></a><span class="o">|</span> <span class="mi">200</span> <span class="o">|</span> <span class="n">OK</span> <span class="o">-</span> <span class="n">La</span> <span class="n">requête</span> <span class="n">a</span> <span class="n">réussi</span> <span class="o">|</span>
-<a id="__codelineno-4-33" name="__codelineno-4-33" href="#__codelineno-4-33"></a><span class="o">|</span> <span class="mi">400</span> <span class="o">|</span> <span class="n">Bad</span> <span class="n">Request</span> <span class="o">-</span> <span class="n">Requête</span> <span class="n">incorrecte</span><span class="p">,</span> <span class="n">souvent</span> <span class="n">en</span> <span class="n">raison</span> <span class="n">d</span><span class="s1">&#39;un paramètre manquant |</span>
-<a id="__codelineno-4-34" name="__codelineno-4-34" href="#__codelineno-4-34"></a><span class="o">|</span> <span class="mi">401</span> <span class="o">|</span> <span class="n">Unauthorized</span> <span class="o">-</span> <span class="n">Clé</span> <span class="n">API</span> <span class="n">invalide</span> <span class="n">fournie</span> <span class="o">|</span>
-<a id="__codelineno-4-35" name="__codelineno-4-35" href="#__codelineno-4-35"></a><span class="o">|</span> <span class="mi">402</span> <span class="o">|</span> <span class="n">Request</span> <span class="n">Failed</span> <span class="o">-</span> <span class="n">Les</span> <span class="n">paramètres</span> <span class="n">sont</span> <span class="n">valides</span> <span class="n">mais</span> <span class="n">la</span> <span class="n">requête</span> <span class="n">a</span> <span class="n">échoué</span> <span class="o">|</span>
-<a id="__codelineno-4-36" name="__codelineno-4-36" href="#__codelineno-4-36"></a><span class="o">|</span> <span class="mi">403</span> <span class="o">|</span> <span class="n">Forbidden</span> <span class="o">-</span> <span class="n">La</span> <span class="n">clé</span> <span class="n">API</span> <span class="n">n</span><span class="s1">&#39;a pas les permissions nécessaires |</span>
-<a id="__codelineno-4-37" name="__codelineno-4-37" href="#__codelineno-4-37"></a><span class="o">|</span> <span class="mi">404</span> <span class="o">|</span> <span class="n">Not</span> <span class="n">Found</span> <span class="o">-</span> <span class="n">La</span> <span class="n">ressource</span> <span class="n">demandée</span> <span class="n">n</span><span class="s1">&#39;existe pas |</span>
-<a id="__codelineno-4-38" name="__codelineno-4-38" href="#__codelineno-4-38"></a><span class="o">|</span> <span class="mi">409</span> <span class="o">|</span> <span class="n">Conflict</span> <span class="o">-</span> <span class="n">La</span> <span class="n">requête</span> <span class="n">est</span> <span class="n">en</span> <span class="n">conflit</span> <span class="n">avec</span> <span class="n">une</span> <span class="n">autre</span> <span class="n">requête</span> <span class="o">|</span>
-<a id="__codelineno-4-39" name="__codelineno-4-39" href="#__codelineno-4-39"></a><span class="o">|</span> <span class="mi">429</span> <span class="o">|</span> <span class="n">Too</span> <span class="n">Many</span> <span class="n">Requests</span> <span class="o">-</span> <span class="n">Trop</span> <span class="n">de</span> <span class="n">requêtes</span> <span class="n">envoyées</span> <span class="n">à</span> <span class="n">l</span><span class="s1">&#39;API trop rapidement |</span>
-<a id="__codelineno-4-40" name="__codelineno-4-40" href="#__codelineno-4-40"></a><span class="o">|</span> <span class="mi">500</span><span class="p">,</span> <span class="mi">502</span><span class="p">,</span> <span class="mi">503</span><span class="p">,</span> <span class="mi">504</span> <span class="o">|</span> <span class="n">Server</span> <span class="n">Errors</span> <span class="o">-</span> <span class="n">Erreur</span> <span class="n">au</span> <span class="n">niveau</span> <span class="n">du</span> <span class="n">serveur</span> <span class="o">|</span>
 </code></pre></div>
-<h2 id="codes-derreur-http">Codes d'erreur HTTP<a class="headerlink" href="#codes-derreur-http" title="Permanent link">&para;</a></h2>
-<p>L'API MVola utilise les codes d'erreur HTTP standard pour indiquer le résultat des requêtes :</p>
-<table>
-<thead>
-<tr>
-<th>Code</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>200</td>
-<td>OK - La requête a réussi</td>
-</tr>
-<tr>
-<td>400</td>
-<td>Bad Request - Requête incorrecte, souvent en raison d'un paramètre manquant</td>
-</tr>
-<tr>
-<td>401</td>
-<td>Unauthorized - Clé API invalide fournie</td>
-</tr>
-<tr>
-<td>402</td>
-<td>Request Failed - Les paramètres sont valides mais la requête a échoué</td>
-</tr>
-<tr>
-<td>403</td>
-<td>Forbidden - La clé API n'a pas les permissions nécessaires</td>
-</tr>
-<tr>
-<td>404</td>
-<td>Not Found - La ressource demandée n'existe pas</td>
-</tr>
-<tr>
-<td>409</td>
-<td>Conflict - La requête est en conflit avec une autre requête</td>
-</tr>
-<tr>
-<td>429</td>
-<td>Too Many Requests - Trop de requêtes envoyées à l'API trop rapidement</td>
-</tr>
-<tr>
-<td>500, 502, 503, 504</td>
-<td>Server Errors - Erreur au niveau du serveur</td>
-</tr>
-</tbody>
-</table>
 <h2 id="meilleures-pratiques">Meilleures pratiques<a class="headerlink" href="#meilleures-pratiques" title="Permanent link">&para;</a></h2>
 <ol>
 <li><strong>Générez des références uniques</strong> pour chaque transaction en utilisant le champ <code>requestingOrganisationTransactionReference</code>.</li>
@@ -1779,7 +1693,7 @@
 <a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>    <span class="n">consumer_secret</span><span class="o">=</span><span class="s2">&quot;votre_consumer_secret&quot;</span><span class="p">,</span>
 <a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>    <span class="n">partner_name</span><span class="o">=</span><span class="s2">&quot;NOM_DU_PARTENAIRE&quot;</span><span class="p">,</span>
 <a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>    <span class="n">partner_msisdn</span><span class="o">=</span><span class="s2">&quot;0343500003&quot;</span><span class="p">,</span>
-<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>    <span class="n">base_url</span><span class="o">=</span><span class="s2">&quot;https://devapi.mvola.mg&quot;</span>
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>    <span class="n">sandbox</span><span class="o">=</span><span class="kc">True</span>  <span class="c1"># True pour sandbox, False pour production</span>
 <a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="p">)</span>
 <a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a>
 <a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="c1"># Informations de transaction</span>
@@ -1916,10 +1830,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>

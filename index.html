@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -31,7 +31,7 @@
       
     
     
-      <link rel="stylesheet" href="assets/stylesheets/main.618322db.min.css">
+      <link rel="stylesheet" href="assets/stylesheets/main.484c7ddc.min.css">
       
         
         <link rel="stylesheet" href="assets/stylesheets/palette.ab4e12ef.min.css">
@@ -507,50 +507,6 @@
     <span class="md-ellipsis">
       
         Fonctionnalités principales
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#utilisation-rapide" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Utilisation rapide
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#formats-de-documentation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Formats de documentation
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#support" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Support
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#fonctionnalites" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Fonctionnalités
       
     </span>
   </a>
@@ -1443,50 +1399,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#utilisation-rapide" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Utilisation rapide
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#formats-de-documentation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Formats de documentation
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#support" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Support
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#fonctionnalites" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Fonctionnalités
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#demarrage-rapide" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1590,34 +1502,14 @@
 </code></pre></div>
 <h2 id="fonctionnalites-principales">Fonctionnalités principales<a class="headerlink" href="#fonctionnalites-principales" title="Permanent link">&para;</a></h2>
 <ul>
-<li>✅ Gestion des jetons d'authentification avec scope <code>EXT_INT_MVOLA_SCOPE</code></li>
-<li>✅ Paiements marchands (initiation, statut, détails)</li>
-<li>✅ Support des environnements Sandbox et Production</li>
-<li>✅ Validation des paramètres</li>
-<li>✅ Gestion robuste des erreurs</li>
-<li>✅ Journalisation intégrée</li>
-<li>✅ Support des variables d'environnement pour une meilleure sécurité</li>
-</ul>
-<h2 id="utilisation-rapide">Utilisation rapide<a class="headerlink" href="#utilisation-rapide" title="Permanent link">&para;</a></h2>
-<p>Pour un démarrage rapide, consultez les exemples dans la section <a href="guides/installation/">Guide d'utilisation</a>.</p>
-<h2 id="formats-de-documentation">Formats de documentation<a class="headerlink" href="#formats-de-documentation" title="Permanent link">&para;</a></h2>
-<p>La documentation est disponible en plusieurs formats:</p>
-<ul>
-<li><a href="https://niainarisoa01.github.io/Mvola_API_Lib/">Documentation en ligne</a></li>
-<li><a href="https://github.com/Niainarisoa01/Mvola_API_Lib/blob/main/docs/documentation.md">Documentation Markdown sur GitHub</a></li>
-</ul>
-<h2 id="support">Support<a class="headerlink" href="#support" title="Permanent link">&para;</a></h2>
-<p>Pour toute question technique, contactez:
-- Le support MVola via le portail développeur
-- Créez une <a href="https://github.com/Niainarisoa01/Mvola_API_Lib/issues">issue sur GitHub</a></p>
-<h2 id="fonctionnalites">Fonctionnalités<a class="headerlink" href="#fonctionnalites" title="Permanent link">&para;</a></h2>
-<ul>
-<li>✅ API simple et intuitive pour l'intégration des paiements MVola</li>
-<li>✅ Gestion automatique des tokens d'authentification</li>
-<li>✅ Support complet des opérations de paiement marchand</li>
-<li>✅ Gestion complète des erreurs et validation des paramètres</li>
-<li>✅ Support de journalisation</li>
-<li>✅ Compatible avec les environnements sandbox et production</li>
+<li>✅ Interaction simplifiée avec les API de paiement MVola</li>
+<li>✅ Gestion automatique du cycle de vie des tokens d'authentification (scope <code>EXT_INT_MVOLA_SCOPE</code>)</li>
+<li>✅ Support complet des opérations de paiement marchand (initiation, statut, détails)</li>
+<li>✅ Compatible avec les environnements Sandbox et Production</li>
+<li>✅ Validation stricte des données (montant, format MSISDN, description) en amont</li>
+<li>✅ Gestion complète des erreurs avec une hiérarchie d'exceptions typées</li>
+<li>✅ Support de journalisation pour le débogage et le suivi</li>
+<li>✅ Configuration flexible via des variables d'environnement (<code>.env</code>) ou en dur</li>
 </ul>
 <h2 id="demarrage-rapide">Démarrage rapide<a class="headerlink" href="#demarrage-rapide" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="sd">&quot;&quot;&quot;</span>
@@ -1884,10 +1776,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": ".", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": ".", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
     
     
-      <script src="assets/javascripts/bundle.e71a0d61.min.js"></script>
+      <script src="assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>
